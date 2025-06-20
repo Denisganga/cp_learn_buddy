@@ -1,0 +1,118 @@
+{% extends 'learning_app/base.html' %}
+
+{% block title %}CP Learn Buddy - Home{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-5">
+    <div class="col-lg-6">
+        <h1 class="display-4 fw-bold text-primary mb-4">Welcome to CP Learn Buddy!</h1>
+        <p class="lead fs-3 mb-4">A fun and interactive learning platform designed especially for children with cerebral palsy.</p>
+        <div class="d-grid gap-3 d-sm-flex">
+            <button class="btn btn-primary btn-lg px-4 touch-btn" onclick="speakText('Welcome to CP Learn Buddy! Let\'s learn together!')">
+                <i class="fas fa-volume-up me-2"></i> Hear Welcome
+            </button>
+            <a href="{% url 'learning_app:category_list' %}" class="btn btn-success btn-lg px-4 touch-btn">
+                <i class="fas fa-book-open me-2"></i> Start Learning
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-6 mt-5 mt-lg-0 text-center">
+        <img src="https://via.placeholder.com/600x400?text=CP+Learn+Buddy" alt="Children learning" class="img-fluid rounded-3 shadow-lg">
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12 text-center mb-4">
+        <h2 class="display-5 fw-bold text-primary">Featured Categories</h2>
+        <p class="lead">Explore our fun learning categories!</p>
+    </div>
+</div>
+
+<div class="row">
+    {% for category in categories %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            {% if category.image %}
+            <img src="{{ category.image.url }}" class="card-img-top" alt="{{ category.name }}">
+            {% else %}
+            <img src="https://via.placeholder.com/300x200?text={{ category.name }}" class="card-img-top" alt="{{ category.name }}">
+            {% endif %}
+            <div class="card-body text-center">
+                <h3 class="card-title">{{ category.name }}</h3>
+                <p class="card-text">{{ category.description|truncatechars:100 }}</p>
+                <a href="{% url 'learning_app:category_detail' category.id %}" class="btn btn-primary touch-btn">
+                    <i class="fas fa-arrow-right me-2"></i> Explore
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center">
+        <div class="alert alert-info">
+            <h3>No categories yet!</h3>
+            <p>Start by creating a new lesson.</p>
+            <a href="{% url 'learning_app:generate_lesson' %}" class="btn btn-primary">Create Lesson</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="row mt-5">
+    <div class="col-12 text-center">
+        <h2 class="display-5 fw-bold text-primary">How It Works</h2>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <i class="fas fa-book fa-4x text-primary mb-3"></i>
+                <h3 class="card-title">Learn</h3>
+                <p class="card-text">Explore fun lessons with colorful images and simple explanations.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <i class="fas fa-question-circle fa-4x text-success mb-3"></i>
+                <h3 class="card-title">Quiz</h3>
+                <p class="card-text">Test your knowledge with interactive quizzes and get instant feedback.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center">
+            <div class="card-body">
+                <i class="fas fa-award fa-4x text-warning mb-3"></i>
+                <h3 class="card-title">Earn Rewards</h3>
+                <p class="card-text">Collect fun stickers and badges as you complete lessons.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12 text-center">
+        <a href="{% url 'learning_app:generate_lesson' %}" class="btn btn-lg btn-primary touch-btn">
+            <i class="fas fa-magic me-2"></i> Create a Custom Lesson
+        </a>
+    </div>
+</div>
+
+<div id="listening-indicator" style="display: none;" class="position-fixed bottom-0 start-0 m-3 p-3 bg-primary text-white rounded-circle">
+    <i class="fas fa-microphone fa-2x"></i>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-play welcome message after a short delay
+        setTimeout(() => {
+            speakText('Welcome to CP Learn Buddy! Let\'s learn together!');
+        }, 1000);
+    });
+</script>
+{% endblock %}

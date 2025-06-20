@@ -1,0 +1,103 @@
+{% extends 'learning_app/base.html' %}
+{% load custom_filters %}
+
+{% block title %}CP Learn Buddy - Quiz Results{% endblock %}
+
+{% block content %}
+<div class="row mb-5">
+    <div class="col-12 text-center">
+        <h1 class="display-4 fw-bold text-primary">Quiz Results</h1>
+        <p class="lead">{{ lesson.title }}</p>
+    </div>
+</div>
+
+<div class="row justify-content-center mb-5">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="display-1 mb-4">
+                    {% if score == total %}
+                    <span class="text-success">🎉</span>
+                    {% elif score >= total|floatformat:0|divisibleby:"2" %}
+                    <span class="text-primary">😊</span>
+                    {% else %}
+                    <span class="text-warning">🤔</span>
+                    {% endif %}
+                </div>
+                
+                <h2 class="mb-4">
+                    You scored <span class="text-primary">{{ score }}</span> out of <span class="text-primary">{{ total }}</span>
+                </h2>
+                
+                <div class="progress-container">
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: {% widthratio score total 100 %}%" 
+                             aria-valuenow="{{ score }}" aria-valuemin="0" aria-valuemax="{{ total }}">
+                            {% widthratio score total 100 %}%
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    {% if score == total %}
+                    <p class="lead">Amazing job! You got everything right!</p>
+                    <div class="reward-animation my-4">
+                        {% with user_reward=user.rewards.last %}
+                            {% if user_reward and user_reward.reward.image %}
+                                <img src="{{ user_reward.reward.image.url }}" alt="{{ user_reward.reward.name }}" class="img-fluid">
+                            {% else %}
+                                <img src="https://via.placeholder.com/200x200?text=Perfect+Score+Badge" alt="Perfect Score Badge" class="img-fluid">
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                    {% elif score >= total|floatformat:0|divisibleby:"2" %}
+                    <p class="lead">Good job! You're learning well!</p>
+                    {% else %}
+                    <p class="lead">Keep practicing! You'll get better!</p>
+                    {% endif %}
+                </div>
+                
+                <button class="btn btn-primary btn-lg mb-4" 
+                        onclick="speakText('{% if score == total %}Amazing job! You got everything right!{% elif score >= total|floatformat:0|divisibleby:"2" %}Good job! You\'re learning well!{% else %}Keep practicing! You\'ll get better!{% endif %}')">
+                    <i class="fas fa-volume-up me-2"></i> Listen
+                </button>
+                
+                <div class="d-grid gap-3">
+                    <a href="{% url 'learning_app:lesson_detail' lesson.id %}" class="btn btn-info btn-lg touch-btn">
+                        <i class="fas fa-book-open me-2"></i> Review Lesson
+                    </a>
+                    <a href="{% url 'learning_app:quiz' lesson.id %}" class="btn btn-warning btn-lg touch-btn">
+                        <i class="fas fa-redo me-2"></i> Try Again
+                    </a>
+                    <a href="{% url 'learning_app:category_detail' lesson.category.id %}" class="btn btn-success btn-lg touch-btn">
+                        <i class="fas fa-arrow-right me-2"></i> Next Lesson
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-play results after a short delay
+        setTimeout(() => {
+            {% if score == total %}
+            speakText('Amazing job! You got everything right!');
+            {% elif score >= total|floatformat:0|divisibleby:"2" %}
+            speakText('Good job! You\'re learning well!');
+            {% else %}
+            speakText('Keep practicing! You\'ll get better!');
+            {% endif %}
+        }, 1000);
+        
+        // Confetti effect for perfect scores
+        {% if score == total %}
+        // This would be implemented with a confetti library in a real app
+        {% endif %}
+    });
+</script>
+{% endblock %}

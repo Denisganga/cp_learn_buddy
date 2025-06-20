@@ -1,0 +1,124 @@
+{% extends 'learning_app/base.html' %}
+
+{% block title %}CP Learn Buddy - Rewards{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 text-center">
+        <h1 class="display-4 fw-bold text-primary">Your Rewards</h1>
+        <p class="lead">Collect badges and stickers as you learn!</p>
+        <button class="btn btn-primary mb-4" onclick="speakText('Here are all your rewards! Great job collecting them!')">
+            <i class="fas fa-volume-up me-2"></i> Listen
+        </button>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2>Your Collection</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for user_reward in rewards %}
+                    <div class="col-md-3 col-sm-6 mb-4 text-center">
+                        <div class="card h-100">
+                            {% if user_reward.reward.image %}
+                            <img src="{{ user_reward.reward.image.url }}" class="card-img-top reward-badge" alt="{{ user_reward.reward.name }}">
+                            {% else %}
+                            <img src="https://via.placeholder.com/150?text={{ user_reward.reward.name }}" class="card-img-top reward-badge" alt="{{ user_reward.reward.name }}">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ user_reward.reward.name }}</h5>
+                                <p class="card-text small">{{ user_reward.reward.description }}</p>
+                                <p class="text-muted small">Earned: {{ user_reward.earned_at|date:"M d, Y" }}</p>
+                                <button class="btn btn-sm btn-outline-primary" 
+                                        onclick="speakText('{{ user_reward.reward.name }}. {{ user_reward.reward.description }}')">
+                                    <i class="fas fa-volume-up"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center py-5">
+                        <div class="alert alert-info">
+                            <h3>No rewards yet!</h3>
+                            <p class="lead">Complete lessons and quizzes to earn rewards.</p>
+                            <a href="{% url 'learning_app:category_list' %}" class="btn btn-primary btn-lg mt-3">
+                                Start Learning
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12 text-center">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h2>Rewards to Collect</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 col-sm-6 mb-4 text-center">
+                        <div class="card h-100 bg-light">
+                            <img src="https://via.placeholder.com/150?text=Perfect+Score" class="card-img-top reward-badge opacity-50" alt="Perfect Score">
+                            <div class="card-body">
+                                <h5 class="card-title">Perfect Score</h5>
+                                <p class="card-text small">Get all questions right in a quiz</p>
+                                <span class="badge bg-warning">Not earned yet</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-4 text-center">
+                        <div class="card h-100 bg-light">
+                            <img src="https://via.placeholder.com/150?text=5+Lessons" class="card-img-top reward-badge opacity-50" alt="5 Lessons">
+                            <div class="card-body">
+                                <h5 class="card-title">Learning Star</h5>
+                                <p class="card-text small">Complete 5 lessons</p>
+                                <span class="badge bg-warning">Not earned yet</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-4 text-center">
+                        <div class="card h-100 bg-light">
+                            <img src="https://via.placeholder.com/150?text=Voice+Master" class="card-img-top reward-badge opacity-50" alt="Voice Master">
+                            <div class="card-body">
+                                <h5 class="card-title">Voice Master</h5>
+                                <p class="card-text small">Answer 10 questions using voice</p>
+                                <span class="badge bg-warning">Not earned yet</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 mb-4 text-center">
+                        <div class="card h-100 bg-light">
+                            <img src="https://via.placeholder.com/150?text=Explorer" class="card-img-top reward-badge opacity-50" alt="Explorer">
+                            <div class="card-body">
+                                <h5 class="card-title">Explorer</h5>
+                                <p class="card-text small">Try lessons from 3 different categories</p>
+                                <span class="badge bg-warning">Not earned yet</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-play welcome message after a short delay
+        setTimeout(() => {
+            speakText('Here are all your rewards! Great job collecting them!');
+        }, 1000);
+    });
+</script>
+{% endblock %}

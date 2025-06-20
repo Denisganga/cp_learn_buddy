@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CP Learn Buddy{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/emotion-detection.css">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #f6c23e;
+            --success-color: #1cc88a;
+            --info-color: #36b9cc;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+        }
+        
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial', sans-serif;
+            background-color: #f8f9fc;
+            color: #333;
+        }
+        
+        .navbar {
+            background-color: var(--primary-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white !important;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            font-size: 1.2rem;
+            margin: 0 10px;
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover {
+            color: white !important;
+            transform: scale(1.1);
+        }
+        
+        .card {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+            border: none;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 15px;
+        }
+        
+        .btn {
+            border-radius: 30px;
+            padding: 10px 25px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+            border-color: var(--warning-color);
+        }
+        
+        .btn-info {
+            background-color: var(--info-color);
+            border-color: var(--info-color);
+        }
+        
+        .lesson-image {
+            max-width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Lesson content styling */
+        .lesson-formatted-content {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: #333;
+        }
+        
+        .lesson-formatted-content h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+        }
+        
+        .lesson-formatted-content h2 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 0.5rem;
+        }
+        
+        .lesson-formatted-content h3 {
+            color: var(--success-color);
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .lesson-formatted-content p {
+            margin-bottom: 1.5rem;
+            transition: background-color 0.3s;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+        }
+        
+        .lesson-formatted-content .clickable-paragraph:hover,
+        .lesson-formatted-content .clickable-heading:hover,
+        .lesson-formatted-content .clickable-item:hover {
+            background-color: #f0f7ff;
+            cursor: pointer;
+        }
+        
+        .lesson-formatted-content .styled-list {
+            background-color: #f8f9fa;
+            padding: 1.5rem 1.5rem 1.5rem 3rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .lesson-formatted-content .styled-list li {
+            padding: 0.5rem 0;
+        }
+        
+        .lesson-formatted-content strong {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        .lesson-formatted-content .interactive-question {
+            background-color: #e7f5ff;
+            border-left: 5px solid var(--primary-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0.5rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .lesson-formatted-content .alert-warning {
+            background-color: #fff9e6;
+            border-left: 5px solid #ffc107;
+        }
+        
+        .lesson-formatted-content .alert-info {
+            background-color: #e7f5ff;
+            border-left: 5px solid #0dcaf0;
+        }
+        
+        /* Speech recognition styling */
+        #listening-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            animation: pulse 1.5s infinite;
+            z-index: 1000;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .min-height-50 {
+            min-height: 50px;
+        }
+        
+        #speech-result {
+            font-style: italic;
+        }
+        
+        #feedback-text {
+            font-weight: bold;
+        }
+        
+        .emoji-feedback {
+            font-size: 3rem;
+            margin: 10px 0;
+        }
+        
+        /* Quiz styling */
+        .quiz-option {
+            background-color: #fff;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.2rem;
+        }
+        
+        .quiz-option:hover {
+            border-color: var(--primary-color);
+            background-color: #f0f7ff;
+        }
+        
+        .quiz-option.selected {
+            border-color: var(--primary-color);
+            background-color: #e6f0ff;
+        }
+        
+        .emoji-feedback {
+            font-size: 3rem;
+            margin: 20px 0;
+        }
+        
+        .progress-container {
+            margin: 30px 0;
+        }
+        
+        .progress {
+            height: 25px;
+            border-radius: 15px;
+            background-color: #e9ecef;
+        }
+        
+        .progress-bar {
+            background-color: var(--success-color);
+            border-radius: 15px;
+        }
+        
+        .reward-badge {
+            width: 150px;
+            height: 150px;
+            margin: 15px;
+            transition: transform 0.3s;
+        }
+        
+        .reward-badge:hover {
+            transform: scale(1.1);
+        }
+        
+        .speech-controls {
+            margin: 20px 0;
+        }
+        
+        .speech-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+        }
+        
+        /* Touch-friendly styles */
+        .touch-btn {
+            min-height: 60px;
+            min-width: 60px;
+            margin: 10px;
+        }
+        
+        /* Accessibility features */
+        .high-contrast-mode {
+            background-color: #000;
+            color: #fff;
+        }
+        
+        .high-contrast-mode .card {
+            background-color: #222;
+            color: #fff;
+        }
+        
+        .large-text {
+            font-size: 1.5em;
+        }
+        
+        /* Music player */
+        .music-player {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 0;
+            margin-top: 50px;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'learning_app:home' %}">
+                <i class="fas fa-book-reader me-2"></i>CP Learn Buddy
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'learning_app:home' %}">
+                            <i class="fas fa-home me-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'learning_app:category_list' %}">
+                            <i class="fas fa-th-large me-1"></i> Categories
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'learning_app:generate_lesson' %}">
+                            <i class="fas fa-magic me-1"></i> Create Lesson
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'learning_app:progress' %}">
+                            <i class="fas fa-chart-line me-1"></i> Progress
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'learning_app:rewards' %}">
+                            <i class="fas fa-award me-1"></i> Rewards
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">
+                            <i class="fas fa-sign-out-alt me-1"></i> Logout
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">
+                            <i class="fas fa-sign-in-alt me-1"></i> Login
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </div>
+
+    <div class="music-player">
+        <button id="toggleMusic" class="btn btn-primary rounded-circle">
+            <i class="fas fa-music"></i>
+        </button>
+        <audio id="backgroundMusic" loop>
+            <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <footer class="mt-5">
+        <div class="container text-center">
+            <p>CP Learn Buddy - Making Learning Fun and Accessible</p>
+            <div class="accessibility-controls">
+                <button id="toggleContrast" class="btn btn-light btn-sm me-2">High Contrast</button>
+                <button id="toggleTextSize" class="btn btn-light btn-sm">Large Text</button>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Text-to-Speech functionality
+        function speakText(text) {
+            fetch("{% url 'learning_app:text_to_speech' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: "text=" + encodeURIComponent(text)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const audio = new Audio(data.audio_url);
+                    audio.play();
+                }
+            });
+        }
+
+        // Background music toggle
+        const musicBtn = document.getElementById('toggleMusic');
+        const music = document.getElementById('backgroundMusic');
+        let musicPlaying = false;
+
+        musicBtn.addEventListener('click', function() {
+            if (musicPlaying) {
+                music.pause();
+                musicBtn.innerHTML = '<i class="fas fa-music"></i>';
+            } else {
+                music.play();
+                musicBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            }
+            musicPlaying = !musicPlaying;
+        });
+
+        // Accessibility toggles
+        document.getElementById('toggleContrast').addEventListener('click', function() {
+            document.body.classList.toggle('high-contrast-mode');
+        });
+
+        document.getElementById('toggleTextSize').addEventListener('click', function() {
+            document.body.classList.toggle('large-text');
+        });
+
+        // Quiz options selection
+        document.querySelectorAll('.quiz-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const name = this.getAttribute('data-name');
+                document.querySelectorAll(`.quiz-option[data-name="${name}"]`).forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                
+                // Set the hidden input value
+                document.querySelector(`input[name="${name}"]`).value = this.getAttribute('data-value');
+            });
+        });
+    </script>
+    
+    <!-- Face API and Emotion Detection -->
+    <script src="/static/js/face-api/face-api.min.js"></script>
+    <script src="/static/js/emotion-detection.js"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

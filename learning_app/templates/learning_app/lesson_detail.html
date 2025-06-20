@@ -1,0 +1,235 @@
+{% extends 'learning_app/base.html' %}
+
+{% block title %}CP Learn Buddy - {{ lesson.title }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'learning_app:category_list' %}">Categories</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'learning_app:category_detail' lesson.category.id %}">{{ lesson.category.name }}</a></li>
+                <li class="breadcrumb-item active">{{ lesson.title }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12 text-center">
+        <h1 class="display-4 fw-bold text-primary">{{ lesson.title }}</h1>
+        <p class="lead">{{ lesson.description }}</p>
+        <button class="btn btn-primary mb-4" onclick="speakText('{{ lesson.title }}. {{ lesson.description }}')">
+            <i class="fas fa-volume-up me-2"></i> Listen to Introduction
+        </button>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-5 mb-4 mb-md-0">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body p-0">
+                {% if lesson.image %}
+                <img src="{{ lesson.image.url }}" class="img-fluid rounded-top lesson-image w-100" alt="{{ lesson.title }}">
+                {% else %}
+                <img src="https://via.placeholder.com/600x400?text={{ lesson.title }}" class="img-fluid rounded-top lesson-image w-100" alt="{{ lesson.title }}">
+                {% endif %}
+                <div class="p-4">
+                    <h3 class="h4 mb-3">Interact with the lesson</h3>
+                    <div class="d-grid gap-3">
+                        <button class="btn btn-info touch-btn" onclick="startListening()">
+                            <i class="fas fa-microphone me-2"></i> Answer with Voice
+                        </button>
+                        <button class="btn btn-primary touch-btn" onclick="speakFullLesson()">
+                            <i class="fas fa-volume-up me-2"></i> Listen to Lesson
+                        </button>
+                        <a href="{% url 'learning_app:quiz' lesson.id %}" class="btn btn-success touch-btn">
+                            <i class="fas fa-question-circle me-2"></i> Take Quiz
+                        </a>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h4 class="h5 mb-3">Practice Speaking</h4>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <p class="current-question fw-bold mb-3">What did you learn from this lesson?</p>
+                                <button class="btn btn-primary mb-3 w-100" onclick="startListening()">
+                                    <i class="fas fa-microphone me-2"></i> Click to Speak
+                                </button>
+                                <div id="speech-result" class="alert alert-light border mb-2 min-height-50"></div>
+                                <div id="feedback-text" class="alert alert-success mb-2 min-height-50"></div>
+                                <div id="emoji-feedback" class="emoji-feedback text-center display-4">🤔</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white py-3">
+                <h2 class="mb-0">Lesson Content</h2>
+            </div>
+            <div class="card-body p-0">
+                <div class="lesson-content">
+                    {{ lesson.content|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <a href="{% url 'learning_app:category_detail' lesson.category.id %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Back to {{ lesson.category.name }}
+        </a>
+    </div>
+</div>
+
+<div id="listening-indicator" style="display: none;" class="position-fixed bottom-0 start-0 m-3 p-3 bg-primary text-white rounded-circle">
+    <i class="fas fa-microphone fa-2x"></i>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-play lesson title after a short delay
+        setTimeout(() => {
+            speakText('{{ lesson.title }}. {{ lesson.description }}');
+        }, 1000);
+        
+        // Add click-to-speak functionality to any elements that don't have it
+        const contentElements = document.querySelectorAll('.lesson-formatted-content p, .lesson-formatted-content li, .lesson-formatted-content h1, .lesson-formatted-content h2, .lesson-formatted-content h3, .lesson-formatted-content h4, .lesson-formatted-content h5, .lesson-formatted-content h6');
+        
+        contentElements.forEach(el => {
+            if (!el.hasAttribute('onclick')) {
+                el.setAttribute('onclick', 'speakText(this.textContent)');
+                el.classList.add('clickable-element');
+            }
+            
+            el.addEventListener('click', function() {
+                // Add visual feedback when clicked
+                this.classList.add('bg-light');
+                setTimeout(() => {
+                    this.classList.remove('bg-light');
+                }, 2000);
+            });
+        });
+        
+        // Function to speak the entire lesson content
+        window.speakFullLesson = function() {
+            const lessonContent = document.querySelector('.lesson-content').textContent;
+            speakText(lessonContent);
+        };
+        
+        // Speech recognition setup
+        let recognition;
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+            
+            recognition.onstart = function() {
+                document.getElementById('listening-indicator').style.display = 'block';
+                document.getElementById('speech-result').textContent = 'Listening...';
+                document.getElementById('feedback-text').textContent = '';
+                document.getElementById('emoji-feedback').innerHTML = '👂';
+            };
+            
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('speech-result').textContent = transcript;
+                
+                // Check the answer
+                checkAnswer(transcript);
+            };
+            
+            recognition.onerror = function(event) {
+                document.getElementById('speech-result').textContent = 'Error: ' + event.error;
+                document.getElementById('listening-indicator').style.display = 'none';
+            };
+            
+            recognition.onend = function() {
+                document.getElementById('listening-indicator').style.display = 'none';
+            };
+        }
+        
+        // Start listening function
+        window.startListening = function() {
+            if (recognition) {
+                recognition.start();
+            } else {
+                alert('Speech recognition is not supported in your browser. Try using Chrome.');
+            }
+        };
+        
+        // Function to check spoken answers
+        function checkAnswer(transcript) {
+            const currentQuestion = document.querySelector('.current-question').textContent.toLowerCase();
+            const userAnswer = transcript.toLowerCase();
+            
+            // Simple keyword matching for different questions
+            let feedback = '';
+            let emoji = '🤔';
+            
+            if (currentQuestion.includes('what did you learn')) {
+                // For general questions about the lesson, check if they mention keywords from the lesson title or content
+                const lessonKeywords = ['{{ lesson.title|lower }}', '{{ lesson.category.name|lower }}'];
+                const foundKeyword = lessonKeywords.some(keyword => userAnswer.includes(keyword));
+                
+                if (foundKeyword || userAnswer.length > 20) {  // If they gave a reasonably long answer
+                    feedback = "Great job! You're learning well!";
+                    emoji = '😃';
+                } else {
+                    feedback = "Try to tell me more about what you learned!";
+                    emoji = '🤔';
+                }
+            } else if (currentQuestion.includes('color')) {
+                // Color questions
+                const colors = ['red', 'blue', 'green', 'yellow', 'orange', 'purple', 'black', 'white'];
+                const foundColor = colors.some(color => userAnswer.includes(color));
+                
+                if (foundColor) {
+                    feedback = "Good job identifying a color!";
+                    emoji = '😃';
+                } else {
+                    feedback = "Try naming a color!";
+                    emoji = '🤔';
+                }
+            } else if (currentQuestion.includes('animal')) {
+                // Animal questions
+                const animals = ['dog', 'cat', 'bird', 'fish', 'lion', 'tiger', 'elephant', 'giraffe', 'zebra'];
+                const foundAnimal = animals.some(animal => userAnswer.includes(animal));
+                
+                if (foundAnimal) {
+                    feedback = "Great job naming an animal!";
+                    emoji = '😃';
+                } else {
+                    feedback = "Try naming an animal!";
+                    emoji = '🤔';
+                }
+            } else {
+                // Default response for other questions
+                if (userAnswer.length > 5) {
+                    feedback = "Thank you for your answer!";
+                    emoji = '😊';
+                } else {
+                    feedback = "Can you tell me more?";
+                    emoji = '🤔';
+                }
+            }
+            
+            // Display feedback
+            document.getElementById('feedback-text').textContent = feedback;
+            document.getElementById('emoji-feedback').innerHTML = emoji;
+            
+            // Speak the feedback
+            speakText(feedback);
+        }
+    });
+</script>
+{% endblock %}

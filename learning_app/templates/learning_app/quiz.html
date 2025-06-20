@@ -1,0 +1,104 @@
+{% extends 'learning_app/base.html' %}
+
+{% block title %}CP Learn Buddy - Quiz: {{ lesson.title }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'learning_app:category_list' %}">Categories</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'learning_app:category_detail' lesson.category.id %}">{{ lesson.category.name }}</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'learning_app:lesson_detail' lesson.id %}">{{ lesson.title }}</a></li>
+                <li class="breadcrumb-item active">Quiz</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12 text-center">
+        <h1 class="display-4 fw-bold text-primary">Quiz: {{ lesson.title }}</h1>
+        <p class="lead">Let's see what you've learned!</p>
+        <button class="btn btn-primary mb-4" onclick="speakText('Let\'s take a quiz about {{ lesson.title }}. Choose the correct answer for each question.')">
+            <i class="fas fa-volume-up me-2"></i> Listen
+        </button>
+    </div>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    
+    {% for question in quiz.questions.all %}
+    <div class="card mb-5 quiz-card">
+        <div class="card-header bg-primary text-white">
+            <h3>Question {{ forloop.counter }}</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4 class="mb-4">{{ question.text }}</h4>
+                    <button type="button" class="btn btn-outline-primary mb-4" 
+                            onclick="speakText('{{ question.text }}')">
+                        <i class="fas fa-volume-up me-2"></i> Listen to Question
+                    </button>
+                    
+                    <input type="hidden" name="question_{{ question.id }}" id="question_{{ question.id }}" value="">
+                    
+                    {% for answer in question.answers.all %}
+                    <div class="quiz-option touch-btn" 
+                         data-name="question_{{ question.id }}" 
+                         data-value="{{ answer.id }}"
+                         onclick="speakText('{{ answer.text }}')">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <span class="btn btn-outline-primary rounded-circle">{{ forloop.counter }}</span>
+                            </div>
+                            <div>
+                                {{ answer.text }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="col-md-6 text-center">
+                    {% if question.image %}
+                    <img src="{{ question.image.url }}" class="img-fluid rounded shadow" alt="Question image">
+                    {% else %}
+                    <img src="https://via.placeholder.com/400x300?text=Question+{{ forloop.counter }}" class="img-fluid rounded shadow" alt="Question image">
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    
+    <div class="row mt-4 mb-5">
+        <div class="col-12 text-center">
+            <button type="submit" class="btn btn-success btn-lg touch-btn">
+                <i class="fas fa-check-circle me-2"></i> Submit Answers
+            </button>
+        </div>
+    </div>
+</form>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <a href="{% url 'learning_app:lesson_detail' lesson.id %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Back to Lesson
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-play quiz introduction after a short delay
+        setTimeout(() => {
+            speakText('Let\'s take a quiz about {{ lesson.title }}. Choose the correct answer for each question.');
+        }, 1000);
+    });
+</script>
+{% endblock %}

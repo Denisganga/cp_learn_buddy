@@ -1,0 +1,52 @@
+{% extends 'learning_app/base.html' %}
+
+{% block title %}CP Learn Buddy - Categories{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 text-center">
+        <h1 class="display-4 fw-bold text-primary">Learning Categories</h1>
+        <p class="lead">Choose a category to start learning!</p>
+        <button class="btn btn-primary mb-4" onclick="speakText('Choose a category to start learning!')">
+            <i class="fas fa-volume-up me-2"></i> Listen
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    {% for category in categories %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            {% if category.image %}
+            <img src="{{ category.image.url }}" class="card-img-top" alt="{{ category.name }}">
+            {% else %}
+            <img src="https://via.placeholder.com/300x200?text={{ category.name }}" class="card-img-top" alt="{{ category.name }}">
+            {% endif %}
+            <div class="card-body text-center">
+                <h3 class="card-title">{{ category.name }}</h3>
+                <p class="card-text">{{ category.description|truncatechars:100 }}</p>
+                <div class="d-grid">
+                    <a href="{% url 'learning_app:category_detail' category.id %}" class="btn btn-primary touch-btn">
+                        <i class="fas fa-arrow-right me-2"></i> Explore
+                    </a>
+                    <button class="btn btn-outline-primary mt-2 touch-btn" 
+                            onclick="speakText('{{ category.name }}. {{ category.description }}')">
+                        <i class="fas fa-volume-up me-2"></i> Listen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center">
+        <div class="alert alert-info p-5">
+            <h3>No categories yet!</h3>
+            <p class="lead">Start by creating a new lesson.</p>
+            <a href="{% url 'learning_app:generate_lesson' %}" class="btn btn-primary btn-lg mt-3">
+                <i class="fas fa-magic me-2"></i> Create Lesson
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

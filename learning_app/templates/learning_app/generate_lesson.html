@@ -1,0 +1,109 @@
+{% extends 'learning_app/base.html' %}
+
+{% block title %}CP Learn Buddy - Generate Lesson{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 text-center">
+        <h1 class="display-4 fw-bold text-primary">Create a New Lesson</h1>
+        <p class="lead">Use AI to generate a custom lesson for your child</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2>Lesson Generator</h2>
+            </div>
+            <div class="card-body">
+                {% if error %}
+                <div class="alert alert-danger">
+                    <strong>Error:</strong> {{ error }}
+                </div>
+                {% endif %}
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label for="topic" class="form-label fw-bold">What would you like to learn about?</label>
+                        <input type="text" class="form-control form-control-lg" id="topic" name="topic" 
+                               placeholder="e.g., Animals, Colors, Numbers, Space" required>
+                        <div class="form-text">Choose any topic you're interested in!</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Age Group</label>
+                        <div class="d-flex flex-wrap gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="age_group" id="age3-5" value="3-5 years" checked>
+                                <label class="form-check-label" for="age3-5">
+                                    3-5 years
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="age_group" id="age6-8" value="6-8 years">
+                                <label class="form-check-label" for="age6-8">
+                                    6-8 years
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="age_group" id="age9-12" value="9-12 years">
+                                <label class="form-check-label" for="age9-12">
+                                    9-12 years
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Difficulty Level</label>
+                        <div class="d-flex flex-wrap gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="difficulty" id="easy" value="Easy" checked>
+                                <label class="form-check-label" for="easy">
+                                    Easy
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="difficulty" id="medium" value="Medium">
+                                <label class="form-check-label" for="medium">
+                                    Medium
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="difficulty" id="challenging" value="Challenging">
+                                <label class="form-check-label" for="challenging">
+                                    Challenging
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg touch-btn">
+                            <i class="fas fa-magic me-2"></i> Generate Lesson
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12 text-center">
+        <div class="alert alert-info">
+            <h3><i class="fas fa-info-circle me-2"></i> How It Works</h3>
+            <p>Our AI will create a custom lesson with:</p>
+            <ul class="list-unstyled">
+                <li><i class="fas fa-check text-success me-2"></i> Simple, clear explanations</li>
+                <li><i class="fas fa-check text-success me-2"></i> Colorful images</li>
+                <li><i class="fas fa-check text-success me-2"></i> Interactive quizzes</li>
+                <li><i class="fas fa-check text-success me-2"></i> Voice narration</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

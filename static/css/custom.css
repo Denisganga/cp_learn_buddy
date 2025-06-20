@@ -1,0 +1,252 @@
+/* Custom CSS for CP Learn Buddy */
+
+:root {
+    --primary-color: #4e73df;
+    --secondary-color: #f6c23e;
+    --success-color: #1cc88a;
+    --info-color: #36b9cc;
+    --warning-color: #f6c23e;
+    --danger-color: #e74a3b;
+}
+
+body {
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Arial', sans-serif;
+    background-color: #f8f9fc;
+    color: #333;
+}
+
+/* Navbar styles */
+.navbar {
+    background-color: var(--primary-color);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: white !important;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-size: 1.2rem;
+    margin: 0 10px;
+    transition: all 0.3s;
+}
+
+.nav-link:hover {
+    color: white !important;
+    transform: scale(1.1);
+}
+
+/* Card styles */
+.card {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+    margin-bottom: 20px;
+    border: none;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+}
+
+.card-header {
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 15px;
+}
+
+/* Button styles */
+.btn {
+    border-radius: 30px;
+    padding: 10px 25px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-success {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.btn-warning {
+    background-color: var(--warning-color);
+    border-color: var(--warning-color);
+}
+
+.btn-info {
+    background-color: var(--info-color);
+    border-color: var(--info-color);
+}
+
+/* Lesson styles */
+.lesson-image {
+    max-width: 100%;
+    border-radius: 15px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Quiz styles */
+.quiz-option {
+    background-color: #fff;
+    border: 2px solid #ddd;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1.2rem;
+}
+
+.quiz-option:hover {
+    border-color: var(--primary-color);
+    background-color: #f0f7ff;
+}
+
+.quiz-option.selected {
+    border-color: var(--primary-color);
+    background-color: #e6f0ff;
+}
+
+/* Feedback styles */
+.emoji-feedback {
+    font-size: 3rem;
+    margin: 20px 0;
+}
+
+/* Progress styles */
+.progress-container {
+    margin: 30px 0;
+}
+
+.progress {
+    height: 25px;
+    border-radius: 15px;
+    background-color: #e9ecef;
+}
+
+.progress-bar {
+    background-color: var(--success-color);
+    border-radius: 15px;
+}
+
+/* Reward styles */
+.reward-badge {
+    width: 150px;
+    height: 150px;
+    margin: 15px;
+    transition: transform 0.3s;
+}
+
+.reward-badge:hover {
+    transform: scale(1.1);
+}
+
+/* Speech controls */
+.speech-controls {
+    margin: 20px 0;
+}
+
+.speech-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 10px;
+}
+
+/* Touch-friendly styles */
+.touch-btn {
+    min-height: 60px;
+    min-width: 60px;
+    margin: 10px;
+}
+
+/* Accessibility features */
+.high-contrast-mode {
+    background-color: #000;
+    color: #fff;
+}
+
+.high-contrast-mode .card {
+    background-color: #222;
+    color: #fff;
+}
+
+.large-text {
+    font-size: 1.5em;
+}
+
+/* Music player */
+.music-player {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+/* Footer */
+footer {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 20px 0;
+    margin-top: 50px;
+}
+
+/* Animations */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-30px);
+    }
+    60% {
+        transform: translateY(-15px);
+    }
+}
+
+.bounce {
+    animation: bounce 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+/* Reward animation */
+.reward-animation {
+    animation: pulse 2s infinite;
+}

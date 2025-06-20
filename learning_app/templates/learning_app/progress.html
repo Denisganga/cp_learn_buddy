@@ -1,0 +1,127 @@
+{% extends 'learning_app/base.html' %}
+
+{% block title %}CP Learn Buddy - Learning Progress{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 text-center">
+        <h1 class="display-4 fw-bold text-primary">Learning Progress</h1>
+        <p class="lead">Track your child's learning journey</p>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-4 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-book fa-3x text-primary mb-3"></i>
+                <h3>{{ progress.count }}</h3>
+                <p class="lead">Lessons Attempted</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                <h3>
+                    {% if progress %}
+                        {% with highest_score=progress|dictsortreversed:"score"|first %}
+                            {{ highest_score.score|default:"0" }}
+                        {% endwith %}
+                    {% else %}
+                        0
+                    {% endif %}
+                </h3>
+                <p class="lead">Highest Score</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-calendar-alt fa-3x text-info mb-3"></i>
+                <h3>
+                    {% if progress %}
+                        {{ progress.0.last_activity|date:"M d" }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </h3>
+                <p class="lead">Last Activity</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2>Recent Activity</h2>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Lesson</th>
+                                <th>Category</th>
+                                <th>Score</th>
+                                <th>Completed</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in progress %}
+                            <tr>
+                                <td>{{ item.lesson.title }}</td>
+                                <td>{{ item.lesson.category.name }}</td>
+                                <td>
+                                    {% if item.score > 0 %}
+                                    <span class="badge bg-success">{{ item.score }}</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Not scored</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.completed %}
+                                    <span class="text-success"><i class="fas fa-check-circle"></i> Yes</span>
+                                    {% else %}
+                                    <span class="text-warning"><i class="fas fa-clock"></i> In progress</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.last_activity|date:"M d, Y" }}</td>
+                                <td>
+                                    <a href="{% url 'learning_app:lesson_detail' item.lesson.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-book-open"></i> Review
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4">
+                                    <p class="lead mb-0">No lessons completed yet.</p>
+                                    <a href="{% url 'learning_app:category_list' %}" class="btn btn-primary mt-3">
+                                        Start Learning
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12 text-center">
+        <a href="{% url 'learning_app:generate_lesson' %}" class="btn btn-primary btn-lg touch-btn">
+            <i class="fas fa-magic me-2"></i> Create New Lesson
+        </a>
+    </div>
+</div>
+{% endblock %}
