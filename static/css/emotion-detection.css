@@ -1,5 +1,37 @@
 /* Emotion Detection System Styles */
 
+/* Notification styles */
+#notification-container {
+    z-index: 1100;
+}
+
+#notification-container .toast {
+    min-width: 300px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    opacity: 1;
+}
+
+#notification-container .bg-danger {
+    background-color: #dc3545 !important;
+    border-left: 5px solid #b02a37;
+}
+
+#notification-container .bg-success {
+    background-color: #198754 !important;
+    border-left: 5px solid #146c43;
+}
+
+#notification-container .bg-info {
+    background-color: #0dcaf0 !important;
+    border-left: 5px solid #0aa2c0;
+}
+
+#notification-container .bg-warning {
+    background-color: #ffc107 !important;
+    border-left: 5px solid #cc9a06;
+}
+
 /* Emotion indicator */
 #emotion-indicator {
     position: fixed;
@@ -130,11 +162,23 @@
 /* Toggle buttons */
 #toggle-emotion-detection,
 #toggle-debug-panel {
-    width: 40px;
-    height: 40px;
+    width: 50px !important;
+    height: 50px !important;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+#toggle-emotion-detection:hover,
+#toggle-debug-panel:hover {
+    transform: scale(1.1);
+}
+
+#toggle-emotion-detection i,
+#toggle-debug-panel i {
+    font-size: 1.5rem;
 }
 
 /* Listening indicator animation */

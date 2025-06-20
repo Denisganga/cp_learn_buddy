@@ -1,0 +1,46 @@
+# GitHub Push Instructions
+
+Since we're having trouble pushing directly to GitHub, here are the steps to push your code manually:
+
+## Option 1: Using SSH (Recommended)
+
+1. Make sure your SSH key is added to your GitHub account:
+   - Check your public key: `cat ~/.ssh/id_ed25519_github.pub`
+   - Add this key to your GitHub account if not already added
+
+2. Verify the exact name of your GitHub repository
+
+3. Set the remote and push:
+```bash
+cd ~/cp_learn_buddy
+git remote add origin git@github.com:YOUR_USERNAME/REPOSITORY_NAME.git
+git push -u origin main
+```
+
+## Option 2: Using HTTPS with Personal Access Token
+
+1. Create a Personal Access Token (PAT) on GitHub:
+   - Go to GitHub → Settings → Developer settings → Personal access tokens → Generate new token
+   - Select "repo" permissions
+   - Generate and copy the token
+
+2. Set the remote and push:
+```bash
+cd ~/cp_learn_buddy
+git remote add origin https://github.com/YOUR_USERNAME/REPOSITORY_NAME.git
+git push -u origin main
+```
+
+3. When prompted for password, use your Personal Access Token instead of your GitHub password
+
+## Option 3: GitHub CLI
+
+If GitHub CLI is installed:
+```bash
+cd ~/cp_learn_buddy
+gh auth login
+gh repo create YOUR_USERNAME/REPOSITORY_NAME --public --source=. --remote=origin
+git push -u origin main
+```
+
+Replace YOUR_USERNAME and REPOSITORY_NAME with your actual GitHub username and repository name.

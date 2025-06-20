@@ -52,15 +52,18 @@ async function initEmotionDetection() {
         emotionIndicator.innerHTML = '<span id="emotion-icon">😐</span>';
         document.body.appendChild(emotionIndicator);
         
-        // Add toggle button
+        // Add toggle button with improved visibility
         const toggleButton = document.createElement('button');
         toggleButton.id = 'toggle-emotion-detection';
-        toggleButton.className = 'btn btn-sm btn-primary rounded-circle position-fixed';
+        toggleButton.className = 'btn btn-primary rounded-circle position-fixed emotion-toggle-btn';
         toggleButton.style.bottom = '80px';
         toggleButton.style.right = '20px';
         toggleButton.style.zIndex = '1000';
+        toggleButton.style.width = '50px';
+        toggleButton.style.height = '50px';
+        toggleButton.style.boxShadow = '0 4px 10px rgba(0,0,0,0.2)';
         toggleButton.innerHTML = '<i class="fas fa-smile"></i>';
-        toggleButton.title = 'Toggle Emotion Detection';
+        toggleButton.title = 'Start Emotion Detection';
         toggleButton.onclick = toggleEmotionDetection;
         document.body.appendChild(toggleButton);
         
@@ -68,6 +71,11 @@ async function initEmotionDetection() {
         
         // Create debug panel (hidden by default)
         createDebugPanel();
+        
+        // Show initial notification to inform users about the feature
+        setTimeout(() => {
+            showNotification('Emotion detection is available! Click the smile button to enable.', 'info');
+        }, 3000);
         
         return true;
     } catch (error) {
@@ -106,7 +114,15 @@ async function startEmotionDetection() {
         return true;
     } catch (error) {
         console.error('Error starting emotion detection:', error);
-        showNotification('Could not access webcam. Please check permissions.', 'error');
+        
+        // Show a more prominent error message
+        showNotification('⚠️ Could not access webcam. Please check permissions and try again.', 'error');
+        
+        // Reset the toggle button
+        document.getElementById('toggle-emotion-detection').classList.remove('btn-danger');
+        document.getElementById('toggle-emotion-detection').classList.add('btn-primary');
+        
+        isEmotionDetectionActive = false;
         return false;
     }
 }
@@ -132,14 +148,31 @@ function stopEmotionDetection() {
 
 // Toggle emotion detection on/off
 function toggleEmotionDetection() {
+    const toggleButton = document.getElementById('toggle-emotion-detection');
+    
     if (isEmotionDetectionActive) {
         stopEmotionDetection();
-        document.getElementById('toggle-emotion-detection').classList.remove('btn-danger');
-        document.getElementById('toggle-emotion-detection').classList.add('btn-primary');
+        toggleButton.classList.remove('btn-danger');
+        toggleButton.classList.add('btn-primary');
+        toggleButton.innerHTML = '<i class="fas fa-smile"></i>';
+        toggleButton.title = 'Start Emotion Detection';
     } else {
-        startEmotionDetection();
-        document.getElementById('toggle-emotion-detection').classList.remove('btn-primary');
-        document.getElementById('toggle-emotion-detection').classList.add('btn-danger');
+        // Change button appearance immediately to provide feedback
+        toggleButton.classList.remove('btn-primary');
+        toggleButton.classList.add('btn-danger');
+        toggleButton.innerHTML = '<i class="fas fa-stop"></i>';
+        toggleButton.title = 'Stop Emotion Detection';
+        
+        // Try to start emotion detection
+        startEmotionDetection().then(success => {
+            if (!success) {
+                // If failed, revert button appearance
+                toggleButton.classList.remove('btn-danger');
+                toggleButton.classList.add('btn-primary');
+                toggleButton.innerHTML = '<i class="fas fa-smile"></i>';
+                toggleButton.title = 'Start Emotion Detection';
+            }
+        });
     }
 }
 
@@ -553,15 +586,45 @@ function showNotification(message, type) {
     
     // Create notification
     const notification = document.createElement('div');
-    notification.className = `toast align-items-center text-white bg-${type} border-0`;
+    notification.className = `toast align-items-center border-0`;
     notification.setAttribute('role', 'alert');
     notification.setAttribute('aria-live', 'assertive');
     notification.setAttribute('aria-atomic', 'true');
     
+    // Set different styles based on notification type
+    let bgColor = 'bg-primary';
+    let textColor = 'text-white';
+    let icon = 'info-circle';
+    
+    switch(type) {
+        case 'error':
+            bgColor = 'bg-danger';
+            textColor = 'text-white';
+            icon = 'exclamation-triangle';
+            break;
+        case 'warning':
+            bgColor = 'bg-warning';
+            textColor = 'text-dark';
+            icon = 'exclamation-circle';
+            break;
+        case 'success':
+            bgColor = 'bg-success';
+            textColor = 'text-white';
+            icon = 'check-circle';
+            break;
+        case 'info':
+            bgColor = 'bg-info';
+            textColor = 'text-dark';
+            icon = 'info-circle';
+            break;
+    }
+    
+    notification.classList.add(bgColor, textColor);
+    
     notification.innerHTML = `
         <div class="d-flex">
             <div class="toast-body">
-                ${message}
+                <i class="fas fa-${icon} me-2"></i> ${message}
             </div>
             <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
@@ -570,7 +633,10 @@ function showNotification(message, type) {
     document.getElementById('notification-container').appendChild(notification);
     
     // Show notification
-    const toast = new bootstrap.Toast(notification);
+    const toast = new bootstrap.Toast(notification, {
+        autohide: true,
+        delay: 5000
+    });
     toast.show();
     
     // Remove after it's hidden
