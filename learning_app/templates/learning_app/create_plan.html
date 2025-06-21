@@ -1,0 +1,103 @@
+{% extends 'learning_app/base.html' %}
+
+{% block title %}CP Learn Buddy - Create Activity Plan{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'learning_app:home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'learning_app:plan_list' %}">Activity Plans</a></li>
+                <li class="breadcrumb-item active">Create Plan</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-4 fw-bold text-primary">Create Activity Plan</h1>
+        <p class="lead">Design a personalized schedule that combines learning and exercise activities.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white py-3">
+                <h2 class="h4 mb-0">Plan Details</h2>
+            </div>
+            <div class="card-body">
+                <form action="{% url 'learning_app:create_plan' %}" method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="planTitle" class="form-label">Plan Title</label>
+                        <input type="text" class="form-control" id="planTitle" name="title" placeholder="e.g., Weekly Learning Schedule, Summer Activities" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="planDescription" class="form-label">Description (Optional)</label>
+                        <textarea class="form-control" id="planDescription" name="description" rows="3" placeholder="Describe the purpose or goals of this activity plan"></textarea>
+                    </div>
+                    
+                    <div class="text-end">
+                        <a href="{% url 'learning_app:plan_list' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Create Plan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mt-4 mt-lg-0">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white py-3">
+                <h2 class="h4 mb-0">Planning Tips</h2>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex">
+                        <i class="fas fa-check-circle text-success me-3"></i>
+                        <div>
+                            <h3 class="h6 mb-1">Balance Activities</h3>
+                            <p class="small mb-0">Mix learning and exercise activities throughout the week.</p>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <i class="fas fa-check-circle text-success me-3"></i>
+                        <div>
+                            <h3 class="h6 mb-1">Include Rest Breaks</h3>
+                            <p class="small mb-0">Schedule regular breaks between activities to prevent fatigue.</p>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <i class="fas fa-check-circle text-success me-3"></i>
+                        <div>
+                            <h3 class="h6 mb-1">Consider Energy Levels</h3>
+                            <p class="small mb-0">Plan more challenging activities during high-energy times of day.</p>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <i class="fas fa-check-circle text-success me-3"></i>
+                        <div>
+                            <h3 class="h6 mb-1">Be Realistic</h3>
+                            <p class="small mb-0">Start with a manageable number of activities and adjust as needed.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body bg-light rounded">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-lightbulb text-warning fa-2x me-3"></i>
+                    <p class="mb-0">After creating your plan, you'll be able to add specific activities for each day and time slot.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

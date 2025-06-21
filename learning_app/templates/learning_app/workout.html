@@ -1,0 +1,596 @@
+{% extends 'learning_app/base.html' %}
+
+{% block title %}CP Learn Buddy - Adaptive Workout{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/video-animations.css">
+<link rel="stylesheet" href="/static/css/workout.css">
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'learning_app:home' %}">Home</a></li>
+                <li class="breadcrumb-item active">Adaptive Workout</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12 text-center">
+        <h1 class="display-4 fw-bold text-primary mb-4">Adaptive Workout Buddy</h1>
+        <p class="lead fs-3 mb-4">Exercises designed just for you based on how you're feeling!</p>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-lg-4 mb-4 mb-lg-0">
+        <div class="card h-100 border-0 shadow-sm emotion-card">
+            <div class="card-header bg-primary text-white py-3">
+                <h2 class="h4 mb-0">Your Current Mood</h2>
+            </div>
+            <div class="card-body text-center">
+                <div class="current-emotion mb-4">
+                    {% if current_emotion == 'happy' %}
+                        <div class="emotion-emoji">😊</div>
+                        <h3 class="emotion-name">Happy</h3>
+                    {% elif current_emotion == 'sad' %}
+                        <div class="emotion-emoji">😢</div>
+                        <h3 class="emotion-name">Sad</h3>
+                    {% elif current_emotion == 'angry' %}
+                        <div class="emotion-emoji">😠</div>
+                        <h3 class="emotion-name">Angry</h3>
+                    {% elif current_emotion == 'surprised' %}
+                        <div class="emotion-emoji">😲</div>
+                        <h3 class="emotion-name">Surprised</h3>
+                    {% elif current_emotion == 'fearful' %}
+                        <div class="emotion-emoji">😨</div>
+                        <h3 class="emotion-name">Fearful</h3>
+                    {% elif current_emotion == 'disgusted' %}
+                        <div class="emotion-emoji">🤢</div>
+                        <h3 class="emotion-name">Disgusted</h3>
+                    {% elif current_emotion == 'tired' %}
+                        <div class="emotion-emoji">😴</div>
+                        <h3 class="emotion-name">Tired</h3>
+                    {% elif current_emotion == 'frustrated' %}
+                        <div class="emotion-emoji">😤</div>
+                        <h3 class="emotion-name">Frustrated</h3>
+                    {% else %}
+                        <div class="emotion-emoji">😐</div>
+                        <h3 class="emotion-name">Neutral</h3>
+                    {% endif %}
+                </div>
+                
+                <p class="emotion-description">{{ emotion_description }}</p>
+                
+                <div class="mt-4">
+                    <button class="btn btn-primary" id="detect-emotion-btn">
+                        <i class="fas fa-camera me-2"></i> Update My Mood
+                    </button>
+                </div>
+                
+                <div class="mt-4 emotion-detection-container" style="display: none;">
+                    <h4 class="h5 mb-3">I see you're feeling:</h4>
+                    <div class="detected-emotion-container">
+                        <div class="detected-emotion-emoji">😐</div>
+                        <div class="detected-emotion-name">Detecting...</div>
+                    </div>
+                    <div class="webcam-container mt-3">
+                        <video id="webcam" autoplay playsinline width="100%" height="auto" class="rounded"></video>
+                        <canvas id="canvas" class="d-none"></canvas>
+                        <div class="emotion-detection-overlay">
+                            <div class="spinner-border text-light" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button class="btn btn-success" id="confirm-emotion-btn">
+                            <i class="fas fa-check me-2"></i> That's Right!
+                        </button>
+                        <button class="btn btn-outline-secondary" id="cancel-detection-btn">
+                            <i class="fas fa-times me-2"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm video-card">
+            <div class="card-header bg-primary text-white py-3">
+                <h2 class="mb-0 video-title">
+                    <i class="fas fa-running me-2"></i> Recommended Exercise: {{ exercise.title }}
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="ratio ratio-16x9 mb-4 video-container">
+                            <div class="cartoon-character character-1"></div>
+                            <div class="cartoon-character character-2"></div>
+                            <iframe src="{{ exercise.video_url }}" title="{{ exercise.title }}" allowfullscreen 
+                                class="rounded shadow-sm" id="exercise-video"></iframe>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card bg-light h-100">
+                            <div class="card-body">
+                                <h3 class="h4 mb-3">About this Exercise</h3>
+                                <p>{{ exercise.description }}</p>
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary video-btn play-btn" onclick="toggleVideo()">
+                                        <i class="fas fa-play me-2" id="video-btn-icon"></i>
+                                        <span id="video-btn-text">Play Video</span>
+                                    </button>
+                                    <button class="btn btn-info video-btn" onclick="speakText('{{ exercise.description }}')">
+                                        <i class="fas fa-volume-up me-2"></i> Listen to Description
+                                    </button>
+                                </div>
+                                <div class="mt-4">
+                                    <h4 class="h5 mb-2">Video Controls</h4>
+                                    <div class="d-flex justify-content-between video-controls">
+                                        <button class="btn btn-sm btn-outline-primary video-btn" onclick="restartVideo()">
+                                            <i class="fas fa-redo"></i> Restart
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-primary video-btn" onclick="toggleFullscreen()">
+                                            <i class="fas fa-expand"></i> Fullscreen
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white py-3">
+                <h2 class="h4 mb-0">How Do You Feel After Exercising?</h2>
+            </div>
+            <div class="card-body text-center py-4">
+                <p class="lead mb-4">Let us know how you feel now that you've completed the exercise!</p>
+                
+                <div class="emotion-selector">
+                    <div class="emotion-option" data-emotion="happy">
+                        <div class="emotion-emoji">😊</div>
+                        <div class="emotion-label">Happy</div>
+                    </div>
+                    <div class="emotion-option" data-emotion="energized">
+                        <div class="emotion-emoji">⚡</div>
+                        <div class="emotion-label">Energized</div>
+                    </div>
+                    <div class="emotion-option" data-emotion="calm">
+                        <div class="emotion-emoji">😌</div>
+                        <div class="emotion-label">Calm</div>
+                    </div>
+                    <div class="emotion-option" data-emotion="tired">
+                        <div class="emotion-emoji">😴</div>
+                        <div class="emotion-label">Tired</div>
+                    </div>
+                    <div class="emotion-option" data-emotion="same">
+                        <div class="emotion-emoji">😐</div>
+                        <div class="emotion-label">Same</div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <button class="btn btn-success btn-lg" id="find-new-exercise-btn">
+                        <i class="fas fa-sync me-2"></i> Find Another Exercise
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if previous_exercises %}
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white py-3">
+                <h2 class="h4 mb-0">Your Exercise History</h2>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Exercise</th>
+                                <th>Date</th>
+                                <th>Starting Mood</th>
+                                <th>Ending Mood</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user_exercise in previous_exercises %}
+                            <tr>
+                                <td>{{ user_exercise.exercise.title }}</td>
+                                <td>{{ user_exercise.date_completed|date:"M d, Y" }}</td>
+                                <td>
+                                    {% if user_exercise.emotion_at_start == 'happy' %}😊
+                                    {% elif user_exercise.emotion_at_start == 'sad' %}😢
+                                    {% elif user_exercise.emotion_at_start == 'angry' %}😠
+                                    {% elif user_exercise.emotion_at_start == 'surprised' %}😲
+                                    {% elif user_exercise.emotion_at_start == 'fearful' %}😨
+                                    {% elif user_exercise.emotion_at_start == 'disgusted' %}🤢
+                                    {% elif user_exercise.emotion_at_start == 'tired' %}😴
+                                    {% elif user_exercise.emotion_at_start == 'frustrated' %}😤
+                                    {% else %}😐
+                                    {% endif %}
+                                    {{ user_exercise.emotion_at_start|title }}
+                                </td>
+                                <td>
+                                    {% if user_exercise.emotion_at_end %}
+                                        {% if user_exercise.emotion_at_end == 'happy' %}😊
+                                        {% elif user_exercise.emotion_at_end == 'energized' %}⚡
+                                        {% elif user_exercise.emotion_at_end == 'calm' %}😌
+                                        {% elif user_exercise.emotion_at_end == 'tired' %}😴
+                                        {% elif user_exercise.emotion_at_end == 'same' %}😐
+                                        {% else %}😐
+                                        {% endif %}
+                                        {{ user_exercise.emotion_at_end|title }}
+                                    {% else %}
+                                        Not recorded
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary repeat-exercise" data-video-url="{{ user_exercise.exercise.video_url }}">
+                                        <i class="fas fa-redo me-1"></i> Repeat
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div id="listening-indicator" style="display: none;" class="position-fixed bottom-0 start-0 m-3 p-3 bg-primary text-white rounded-circle">
+    <i class="fas fa-microphone fa-2x"></i>
+</div>
+
+<form id="emotion-form" method="post" action="{% url 'learning_app:workout_recommendation' %}" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="emotion" id="emotion-input" value="{{ current_emotion }}">
+</form>
+
+{% if user_exercise %}
+<form id="update-exercise-form" method="post" action="{% url 'learning_app:update_exercise_emotion' user_exercise.id %}" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="emotion" id="after-exercise-emotion-input" value="">
+</form>
+{% else %}
+<form id="update-exercise-form" method="post" action="#" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="emotion" id="after-exercise-emotion-input" value="">
+</form>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-play welcome message after a short delay
+        setTimeout(() => {
+            speakText('Welcome to your adaptive workout! Let\'s exercise based on how you\'re feeling today.');
+        }, 1000);
+        
+        // Video control functions
+        window.toggleVideo = function() {
+            const video = document.getElementById('exercise-video');
+            const btnIcon = document.getElementById('video-btn-icon');
+            const btnText = document.getElementById('video-btn-text');
+            
+            if (!video) return;
+            
+            // Get the iframe's src
+            const src = video.src;
+            
+            // Check if the video is paused (by checking if ?autoplay=1 is in the URL)
+            const isPaused = !src.includes('autoplay=1');
+            
+            if (isPaused) {
+                // Play the video
+                if (src.includes('?')) {
+                    video.src = src + '&autoplay=1';
+                } else {
+                    video.src = src + '?autoplay=1';
+                }
+                btnIcon.className = 'fas fa-pause me-2';
+                btnText.textContent = 'Pause Video';
+            } else {
+                // Pause the video by reloading it without autoplay
+                video.src = src.replace('&autoplay=1', '').replace('?autoplay=1', '');
+                btnIcon.className = 'fas fa-play me-2';
+                btnText.textContent = 'Play Video';
+            }
+        };
+        
+        window.restartVideo = function() {
+            const video = document.getElementById('exercise-video');
+            if (!video) return;
+            
+            // Get the base URL without parameters
+            let src = video.src;
+            if (src.includes('?')) {
+                src = src.split('?')[0];
+            }
+            
+            // Reload the video
+            video.src = src;
+            
+            // Update button state
+            const btnIcon = document.getElementById('video-btn-icon');
+            const btnText = document.getElementById('video-btn-text');
+            btnIcon.className = 'fas fa-play me-2';
+            btnText.textContent = 'Play Video';
+        };
+        
+        window.toggleFullscreen = function() {
+            const video = document.getElementById('exercise-video');
+            if (!video) return;
+            
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else {
+                video.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            }
+        };
+        
+        // Emotion detection
+        const detectEmotionBtn = document.getElementById('detect-emotion-btn');
+        const emotionDetectionContainer = document.querySelector('.emotion-detection-container');
+        const confirmEmotionBtn = document.getElementById('confirm-emotion-btn');
+        const cancelDetectionBtn = document.getElementById('cancel-detection-btn');
+        const webcamElement = document.getElementById('webcam');
+        const canvasElement = document.getElementById('canvas');
+        const detectedEmotionEmoji = document.querySelector('.detected-emotion-emoji');
+        const detectedEmotionName = document.querySelector('.detected-emotion-name');
+        const emotionForm = document.getElementById('emotion-form');
+        const emotionInput = document.getElementById('emotion-input');
+        
+        let currentStream = null;
+        let isModelLoaded = false;
+        let detectedEmotion = 'neutral';
+        
+        // Load face-api.js models
+        async function loadModels() {
+            try {
+                await faceapi.nets.tinyFaceDetector.loadFromUri('/static/models');
+                await faceapi.nets.faceExpressionNet.loadFromUri('/static/models');
+                isModelLoaded = true;
+                console.log('Models loaded successfully');
+            } catch (error) {
+                console.error('Error loading models:', error);
+            }
+        }
+        
+        // Start webcam
+        async function startWebcam() {
+            try {
+                const constraints = {
+                    video: {
+                        width: { ideal: 320 },
+                        height: { ideal: 240 },
+                        facingMode: 'user'
+                    }
+                };
+                
+                currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+                webcamElement.srcObject = currentStream;
+                
+                return new Promise((resolve) => {
+                    webcamElement.onloadedmetadata = () => {
+                        resolve(webcamElement);
+                    };
+                });
+            } catch (error) {
+                console.error('Error starting webcam:', error);
+                return null;
+            }
+        }
+        
+        // Stop webcam
+        function stopWebcam() {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                webcamElement.srcObject = null;
+                currentStream = null;
+            }
+        }
+        
+        // Detect emotion
+        async function detectEmotion() {
+            if (!isModelLoaded) {
+                await loadModels();
+            }
+            
+            const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 224 });
+            
+            const result = await faceapi
+                .detectSingleFace(webcamElement, options)
+                .withFaceExpressions();
+                
+            if (result) {
+                const expressions = result.expressions;
+                const maxExpression = Object.keys(expressions).reduce((a, b) => 
+                    expressions[a] > expressions[b] ? a : b
+                );
+                
+                // Map face-api.js expressions to our emotion categories
+                const emotionMapping = {
+                    'neutral': 'neutral',
+                    'happy': 'happy',
+                    'sad': 'sad',
+                    'angry': 'angry',
+                    'fearful': 'fearful',
+                    'disgusted': 'disgusted',
+                    'surprised': 'surprised'
+                };
+                
+                detectedEmotion = emotionMapping[maxExpression] || 'neutral';
+                
+                // Update UI
+                updateDetectedEmotionUI(detectedEmotion);
+                
+                return detectedEmotion;
+            }
+            
+            return 'neutral';
+        }
+        
+        // Update detected emotion UI
+        function updateDetectedEmotionUI(emotion) {
+            const emojis = {
+                'happy': '😊',
+                'sad': '😢',
+                'angry': '😠',
+                'surprised': '😲',
+                'fearful': '😨',
+                'disgusted': '🤢',
+                'neutral': '😐',
+                'tired': '😴',
+                'frustrated': '😤'
+            };
+            
+            detectedEmotionEmoji.textContent = emojis[emotion] || '😐';
+            detectedEmotionName.textContent = emotion.charAt(0).toUpperCase() + emotion.slice(1);
+        }
+        
+        // Event listeners
+        detectEmotionBtn.addEventListener('click', async function() {
+            emotionDetectionContainer.style.display = 'block';
+            this.disabled = true;
+            
+            await startWebcam();
+            
+            // Start continuous emotion detection
+            const detectionInterval = setInterval(async () => {
+                await detectEmotion();
+            }, 1000);
+            
+            // Store the interval ID for cleanup
+            this.dataset.detectionInterval = detectionInterval;
+        });
+        
+        confirmEmotionBtn.addEventListener('click', function() {
+            // Update the form input with detected emotion
+            emotionInput.value = detectedEmotion;
+            
+            // Submit the form to get a new exercise recommendation
+            emotionForm.submit();
+        });
+        
+        cancelDetectionBtn.addEventListener('click', function() {
+            // Clear the detection interval
+            const detectionInterval = detectEmotionBtn.dataset.detectionInterval;
+            if (detectionInterval) {
+                clearInterval(detectionInterval);
+            }
+            
+            // Stop the webcam
+            stopWebcam();
+            
+            // Hide the emotion detection container
+            emotionDetectionContainer.style.display = 'none';
+            
+            // Enable the detect emotion button
+            detectEmotionBtn.disabled = false;
+        });
+        
+        // Handle emotion selection after exercise
+        const emotionOptions = document.querySelectorAll('.emotion-option');
+        const afterExerciseEmotionInput = document.getElementById('after-exercise-emotion-input');
+        const updateExerciseForm = document.getElementById('update-exercise-form');
+        
+        emotionOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove selected class from all options
+                emotionOptions.forEach(opt => opt.classList.remove('selected'));
+                
+                // Add selected class to clicked option
+                this.classList.add('selected');
+                
+                // Update the form input
+                const selectedEmotion = this.dataset.emotion;
+                afterExerciseEmotionInput.value = selectedEmotion;
+                
+                // Check if the form action is valid (not "#")
+                if (updateExerciseForm.action && updateExerciseForm.action !== "#" && !updateExerciseForm.action.endsWith("#")) {
+                    // Submit the form via AJAX
+                    fetch(updateExerciseForm.action, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            emotion: selectedEmotion
+                        }),
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Show success message
+                            speakText('Thank you for sharing how you feel! This helps us recommend better exercises for you.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                } else {
+                    // Just show a message without submitting
+                    speakText('Thank you for sharing how you feel!');
+                    console.log('Form action not available, emotion update skipped');
+                }
+            });
+        });
+        
+        // Find new exercise button
+        const findNewExerciseBtn = document.getElementById('find-new-exercise-btn');
+        
+        findNewExerciseBtn.addEventListener('click', function() {
+            emotionForm.submit();
+        });
+        
+        // Repeat exercise buttons
+        const repeatExerciseButtons = document.querySelectorAll('.repeat-exercise');
+        
+        repeatExerciseButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const videoUrl = this.dataset.videoUrl;
+                const exerciseVideo = document.getElementById('exercise-video');
+                
+                if (exerciseVideo && videoUrl) {
+                    exerciseVideo.src = videoUrl;
+                    
+                    // Scroll to the video
+                    exerciseVideo.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+        
+        // Load models on page load
+        loadModels();
+    });
+</script>
+{% endblock %}

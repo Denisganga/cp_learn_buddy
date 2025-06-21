@@ -1,0 +1,214 @@
+/* Avatar styles for CP Learn Buddy */
+
+.avatar-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.avatar-bubble {
+    position: relative;
+    background-color: white;
+    border-radius: 20px;
+    padding: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    margin-bottom: 15px;
+    max-width: 250px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+}
+
+.avatar-bubble.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.avatar-bubble:after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    right: 30px;
+    border-width: 15px 15px 0;
+    border-style: solid;
+    border-color: white transparent;
+}
+
+.avatar-image-container {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-image-container:hover {
+    transform: scale(1.1);
+}
+
+.avatar-image {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+}
+
+.avatar-controls {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: white;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.avatar-widget:hover .avatar-controls {
+    opacity: 1;
+}
+
+.avatar-menu {
+    position: absolute;
+    bottom: 90px;
+    right: 0;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    padding: 10px 0;
+    display: none;
+}
+
+.avatar-menu.show {
+    display: block;
+}
+
+.avatar-menu-item {
+    padding: 8px 15px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.avatar-menu-item:hover {
+    background-color: #f0f7ff;
+}
+
+.avatar-menu-item i {
+    width: 20px;
+    text-align: center;
+    margin-right: 8px;
+}
+
+/* Avatar animations */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-20px);
+    }
+    60% {
+        transform: translateY(-10px);
+    }
+}
+
+.avatar-bounce {
+    animation: bounce 2s ease;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.avatar-pulse {
+    animation: pulse 1s ease;
+}
+
+@keyframes wave {
+    0% {
+        transform: rotate(0deg);
+    }
+    10% {
+        transform: rotate(14deg);
+    }
+    20% {
+        transform: rotate(-8deg);
+    }
+    30% {
+        transform: rotate(14deg);
+    }
+    40% {
+        transform: rotate(-4deg);
+    }
+    50% {
+        transform: rotate(10deg);
+    }
+    60% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+.avatar-wave {
+    animation: wave 2s ease;
+    transform-origin: 70% 70%;
+}
+
+/* Color schemes */
+.avatar-blue .avatar-image-container {
+    border: 3px solid #4e73df;
+}
+
+.avatar-green .avatar-image-container {
+    border: 3px solid #1cc88a;
+}
+
+.avatar-purple .avatar-image-container {
+    border: 3px solid #6f42c1;
+}
+
+.avatar-orange .avatar-image-container {
+    border: 3px solid #fd7e14;
+}
+
+.avatar-pink .avatar-image-container {
+    border: 3px solid #e83e8c;
+}
+
+/* Accessibility considerations */
+@media (prefers-reduced-motion: reduce) {
+    .avatar-bounce,
+    .avatar-pulse,
+    .avatar-wave,
+    .avatar-bubble,
+    .avatar-image-container:hover,
+    .avatar-bubble.show {
+        animation: none;
+        transform: none;
+        transition: none;
+    }
+}

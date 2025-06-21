@@ -1,0 +1,160 @@
+/* Video animations for CP Learn Buddy */
+
+/* Video container styling */
+.video-container {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.video-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Video frame styling */
+#lesson-video {
+    border: 5px solid #4e73df;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+/* Video controls styling */
+.video-controls {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.video-btn {
+    border-radius: 30px;
+    padding: 10px 20px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.video-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.video-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Video section animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.video-section {
+    animation: fadeIn 1s ease;
+}
+
+/* Video title animation */
+@keyframes colorChange {
+    0% { color: #4e73df; }
+    25% { color: #1cc88a; }
+    50% { color: #f6c23e; }
+    75% { color: #e74a3b; }
+    100% { color: #4e73df; }
+}
+
+.video-title {
+    animation: colorChange 10s infinite;
+    font-weight: bold;
+}
+
+/* Play button animation */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.play-btn {
+    animation: pulse 2s infinite;
+}
+
+/* Video card animation */
+.video-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.video-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        to bottom right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(45deg);
+    animation: shine 6s infinite;
+    z-index: 1;
+}
+
+@keyframes shine {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    20%, 100% { transform: translateX(100%) rotate(45deg); }
+}
+
+/* Cartoon character animations */
+.cartoon-character {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    z-index: 10;
+}
+
+.character-1 {
+    top: -50px;
+    left: -30px;
+    background-image: url('https://via.placeholder.com/100x100?text=😃');
+    animation: float 5s ease-in-out infinite;
+}
+
+.character-2 {
+    bottom: -30px;
+    right: -20px;
+    background-image: url('https://via.placeholder.com/100x100?text=🎬');
+    animation: float 4s ease-in-out infinite 1s;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(5deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+}
+
+/* Accessibility considerations */
+@media (prefers-reduced-motion: reduce) {
+    .video-container,
+    .video-container:hover,
+    #lesson-video,
+    .video-btn,
+    .video-btn:hover,
+    .video-section,
+    .video-title,
+    .play-btn,
+    .video-card::before,
+    .cartoon-character {
+        animation: none;
+        transform: none;
+        transition: none;
+    }
+}

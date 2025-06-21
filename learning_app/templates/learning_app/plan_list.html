@@ -1,0 +1,131 @@
+{% extends 'learning_app/base.html' %}
+
+{% block title %}CP Learn Buddy - Activity Plans{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'learning_app:home' %}">Home</a></li>
+                <li class="breadcrumb-item active">Activity Plans</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="display-4 fw-bold text-primary">Your Activity Plans</h1>
+        <p class="lead">Create and manage personalized schedules that combine learning and exercise activities.</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{% url 'learning_app:create_plan' %}" class="btn btn-primary btn-lg">
+            <i class="fas fa-plus-circle me-2"></i> Create New Plan
+        </a>
+    </div>
+</div>
+
+{% if plans %}
+<div class="row">
+    {% for plan in plans %}
+    <div class="col-md-6 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
+                <h2 class="h4 mb-0">{{ plan.title }}</h2>
+                <span class="badge bg-light text-primary">{{ plan.activities.count }} Activities</span>
+            </div>
+            <div class="card-body">
+                {% if plan.description %}
+                <p>{{ plan.description }}</p>
+                {% else %}
+                <p class="text-muted">No description provided.</p>
+                {% endif %}
+                
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <small class="text-muted">Created: {{ plan.created_at|date:"M d, Y" }}</small>
+                    <div>
+                        <a href="{% url 'learning_app:plan_detail' plan.id %}" class="btn btn-primary">
+                            <i class="fas fa-calendar-alt me-2"></i> View Plan
+                        </a>
+                        <a href="{% url 'learning_app:delete_plan' plan.id %}" class="btn btn-outline-danger ms-2">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-calendar-alt fa-5x text-muted mb-4"></i>
+                <h2 class="h3 mb-3">No Activity Plans Yet</h2>
+                <p class="lead mb-4">Create your first activity plan to schedule learning lessons and exercises!</p>
+                <a href="{% url 'learning_app:create_plan' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus-circle me-2"></i> Create Your First Plan
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white py-3">
+                <h2 class="h4 mb-0">Benefits of Planning</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="d-flex mb-4">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-brain text-primary fa-2x me-3"></i>
+                            </div>
+                            <div>
+                                <h3 class="h5">Cognitive Development</h3>
+                                <p>Regular learning activities help improve cognitive function and memory.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex mb-4">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-running text-primary fa-2x me-3"></i>
+                            </div>
+                            <div>
+                                <h3 class="h5">Physical Benefits</h3>
+                                <p>Scheduled exercises improve mobility, strength, and coordination.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex mb-4">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-clock text-primary fa-2x me-3"></i>
+                            </div>
+                            <div>
+                                <h3 class="h5">Routine & Structure</h3>
+                                <p>Consistent schedules help children feel secure and know what to expect.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex mb-4">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-chart-line text-primary fa-2x me-3"></i>
+                            </div>
+                            <div>
+                                <h3 class="h5">Track Progress</h3>
+                                <p>Monitor improvements over time with completed activities.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

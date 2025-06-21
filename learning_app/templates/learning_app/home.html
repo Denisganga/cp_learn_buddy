@@ -2,16 +2,20 @@
 
 {% block title %}CP Learn Buddy - Home{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/button-animations.css">
+{% endblock %}
+
 {% block content %}
 <div class="row align-items-center mb-5">
     <div class="col-lg-6">
         <h1 class="display-4 fw-bold text-primary mb-4">Welcome to CP Learn Buddy!</h1>
         <p class="lead fs-3 mb-4">A fun and interactive learning platform designed especially for children with cerebral palsy.</p>
         <div class="d-grid gap-3 d-sm-flex">
-            <button class="btn btn-primary btn-lg px-4 touch-btn" onclick="speakText('Welcome to CP Learn Buddy! Let\'s learn together!')">
+            <button class="btn btn-primary btn-lg px-4 touch-btn btn-animated btn-hear-welcome" onclick="speakText('Welcome to CP Learn Buddy! Let\'s learn together!')">
                 <i class="fas fa-volume-up me-2"></i> Hear Welcome
             </button>
-            <a href="{% url 'learning_app:category_list' %}" class="btn btn-success btn-lg px-4 touch-btn">
+            <a href="{% url 'learning_app:category_list' %}" class="btn btn-success btn-lg px-4 touch-btn btn-animated btn-start-learning">
                 <i class="fas fa-book-open me-2"></i> Start Learning
             </a>
         </div>
@@ -40,7 +44,7 @@
             <div class="card-body text-center">
                 <h3 class="card-title">{{ category.name }}</h3>
                 <p class="card-text">{{ category.description|truncatechars:100 }}</p>
-                <a href="{% url 'learning_app:category_detail' category.id %}" class="btn btn-primary touch-btn">
+                <a href="{% url 'learning_app:category_detail' category.id %}" class="btn btn-primary touch-btn btn-animated">
                     <i class="fas fa-arrow-right me-2"></i> Explore
                 </a>
             </div>
@@ -94,8 +98,71 @@
 </div>
 
 <div class="row mt-5">
+    <div class="col-12 text-center mb-4">
+        <h2 class="display-5 fw-bold text-primary">New Feature: Adaptive Workout</h2>
+        <p class="lead">Exercise based on how you're feeling today!</p>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-6 mb-4 mb-md-0">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body p-0">
+                <img src="https://via.placeholder.com/600x400?text=Adaptive+Workout" class="img-fluid rounded-top w-100" alt="Adaptive Workout">
+                <div class="p-4 text-center">
+                    <h3 class="h4 mb-3">Emotion-Based Exercise</h3>
+                    <p>Our new workout feature uses emotion detection to recommend exercises that are perfect for how you're feeling right now!</p>
+                    <a href="{% url 'learning_app:workout_recommendation' %}" class="btn btn-success btn-lg touch-btn btn-animated btn-start-learning">
+                        <i class="fas fa-running me-2"></i> Try Workout Buddy
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-header bg-primary text-white py-3">
+                <h3 class="mb-0">Benefits of Adaptive Exercise</h3>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex">
+                        <i class="fas fa-smile text-primary fa-2x me-3"></i>
+                        <div>
+                            <h4 class="h5">Mood-Responsive</h4>
+                            <p>Exercises change based on your emotional state</p>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <i class="fas fa-brain text-primary fa-2x me-3"></i>
+                        <div>
+                            <h4 class="h5">Cognitive Benefits</h4>
+                            <p>Improves focus and cognitive function</p>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <i class="fas fa-child text-primary fa-2x me-3"></i>
+                        <div>
+                            <h4 class="h5">Motor Skills</h4>
+                            <p>Enhances coordination and motor control</p>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <i class="fas fa-heart text-primary fa-2x me-3"></i>
+                        <div>
+                            <h4 class="h5">Emotional Regulation</h4>
+                            <p>Helps manage and understand emotions</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
     <div class="col-12 text-center">
-        <a href="{% url 'learning_app:generate_lesson' %}" class="btn btn-lg btn-primary touch-btn">
+        <a href="{% url 'learning_app:generate_lesson' %}" class="btn btn-lg btn-primary touch-btn btn-animated btn-hear-welcome">
             <i class="fas fa-magic me-2"></i> Create a Custom Lesson
         </a>
     </div>
@@ -113,6 +180,168 @@
         setTimeout(() => {
             speakText('Welcome to CP Learn Buddy! Let\'s learn together!');
         }, 1000);
+        
+        // Add interactive animation effects
+        const hearWelcomeBtn = document.querySelector('.btn-hear-welcome');
+        const startLearningBtn = document.querySelector('.btn-start-learning');
+        
+        // Enhance animation on mouse enter
+        if (hearWelcomeBtn) {
+            hearWelcomeBtn.addEventListener('mouseenter', function() {
+                this.style.animationDuration = '1s';
+            });
+            
+            hearWelcomeBtn.addEventListener('mouseleave', function() {
+                this.style.animationDuration = '2s';
+            });
+        }
+        
+        if (startLearningBtn) {
+            startLearningBtn.addEventListener('mouseenter', function() {
+                this.style.animationDuration = '1s';
+            });
+            
+            startLearningBtn.addEventListener('mouseleave', function() {
+                this.style.animationDuration = '2s';
+            });
+        }
+        
+        // Add sequential animation to buttons for initial page load
+        const animatedButtons = document.querySelectorAll('.btn-animated');
+        animatedButtons.forEach((button, index) => {
+            button.style.opacity = '0';
+            button.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                button.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                button.style.opacity = '1';
+                button.style.transform = 'translateY(0)';
+            }, 300 + (index * 200));
+        });
     });
 </script>
 {% endblock %}
+<div class="row mt-5">
+    <div class="col-12 text-center mb-4">
+        <h2 class="display-5 fw-bold text-primary">Plan Your Learning Journey</h2>
+        <p class="lead">Create personalized schedules that combine learning and exercise activities!</p>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-6 mb-4 mb-md-0">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body p-0">
+                <img src="https://via.placeholder.com/600x400?text=Weekly+Schedule" class="img-fluid rounded-top w-100" alt="Weekly Schedule">
+                <div class="p-4 text-center">
+                    <h3 class="h4 mb-3">Weekly Activity Plans</h3>
+                    <p>Create structured schedules that combine learning lessons and adaptive exercises throughout the week.</p>
+                    <a href="{% url 'learning_app:plan_list' %}" class="btn btn-primary btn-lg touch-btn btn-animated">
+                        <i class="fas fa-calendar-alt me-2"></i> Create a Plan
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-header bg-primary text-white py-3">
+                <h3 class="mb-0">Benefits of Planning</h3>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex">
+                        <i class="fas fa-check-circle text-primary fa-2x me-3"></i>
+                        <div>
+                            <h4 class="h5">Consistent Progress</h4>
+                            <p>Regular scheduled activities lead to better learning outcomes</p>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <i class="fas fa-check-circle text-primary fa-2x me-3"></i>
+                        <div>
+                            <h4 class="h5">Balanced Development</h4>
+                            <p>Combine cognitive learning with physical exercises</p>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <i class="fas fa-check-circle text-primary fa-2x me-3"></i>
+                        <div>
+                            <h4 class="h5">Visual Schedule</h4>
+                            <p>Clear visual representation helps children understand what to expect</p>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <i class="fas fa-check-circle text-primary fa-2x me-3"></i>
+                        <div>
+                            <h4 class="h5">Track Achievements</h4>
+                            <p>Monitor completed activities and celebrate progress</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mt-5">
+    <div class="col-12 text-center mb-4">
+        <h2 class="display-5 fw-bold text-primary">Meet Your Learning Buddy!</h2>
+        <p class="lead">Create your own friendly avatar that will guide and encourage you on your learning journey!</p>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-6 mb-4 mb-md-0">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body p-0">
+                <img src="https://via.placeholder.com/600x400?text=Friendly+Avatar" class="img-fluid rounded-top w-100" alt="Friendly Avatar">
+                <div class="p-4 text-center">
+                    <h3 class="h4 mb-3">Your Personal Learning Companion</h3>
+                    <p>Choose from animals, robots, fantasy characters, and more! Give your avatar a name and personality!</p>
+                    <a href="{% url 'learning_app:avatar_selection' %}" class="btn btn-primary btn-lg touch-btn btn-animated">
+                        <i class="fas fa-user-circle me-2"></i> Create Your Avatar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-header bg-primary text-white py-3">
+                <h3 class="mb-0">How Your Avatar Helps You</h3>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex">
+                        <i class="fas fa-comment text-primary fa-2x me-3"></i>
+                        <div>
+                            <h4 class="h5">Friendly Conversations</h4>
+                            <p>Your avatar talks to you and makes learning more fun!</p>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <i class="fas fa-thumbs-up text-primary fa-2x me-3"></i>
+                        <div>
+                            <h4 class="h5">Encouragement</h4>
+                            <p>Get positive feedback and motivation when you need it</p>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <i class="fas fa-star text-primary fa-2x me-3"></i>
+                        <div>
+                            <h4 class="h5">Celebrate Achievements</h4>
+                            <p>Your avatar celebrates with you when you complete lessons</p>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex">
+                        <i class="fas fa-smile text-primary fa-2x me-3"></i>
+                        <div>
+                            <h4 class="h5">Personalized Friend</h4>
+                            <p>Customize your avatar's name, voice, and appearance</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

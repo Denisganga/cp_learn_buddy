@@ -2,6 +2,10 @@
 
 {% block title %}CP Learn Buddy - {{ lesson.title }}{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/video-animations.css">
+{% endblock %}
+
 {% block content %}
 <div class="row mb-4">
     <div class="col-12">
@@ -79,6 +83,83 @@
         </div>
     </div>
 </div>
+
+{% if lesson.video_url %}
+<div class="row mt-5 mb-5 video-section">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm video-card">
+            <div class="card-header bg-primary text-white py-3">
+                <h2 class="mb-0 video-title">
+                    <i class="fas fa-film me-2"></i> Watch and Learn: {{ lesson.video_title|default:"Educational Cartoon" }}
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="ratio ratio-16x9 mb-4 video-container">
+                            <div class="cartoon-character character-1"></div>
+                            <div class="cartoon-character character-2"></div>
+                            <iframe src="{{ lesson.video_url }}" title="{{ lesson.video_title }}" allowfullscreen 
+                                class="rounded shadow-sm" id="lesson-video"></iframe>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card bg-light h-100">
+                            <div class="card-body">
+                                <h3 class="h4 mb-3">About this Video</h3>
+                                <p>{{ lesson.video_description|default:"Watch this fun cartoon to learn more about this topic!" }}</p>
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary video-btn play-btn" onclick="toggleVideo()">
+                                        <i class="fas fa-play me-2" id="video-btn-icon"></i>
+                                        <span id="video-btn-text">Play Video</span>
+                                    </button>
+                                    <button class="btn btn-info video-btn" onclick="speakText('{{ lesson.video_description|default:"Watch this fun cartoon to learn more about this topic!" }}')">
+                                        <i class="fas fa-volume-up me-2"></i> Listen to Description
+                                    </button>
+                                </div>
+                                <div class="mt-4">
+                                    <h4 class="h5 mb-2">Video Controls</h4>
+                                    <div class="d-flex justify-content-between video-controls">
+                                        <button class="btn btn-sm btn-outline-primary video-btn" onclick="restartVideo()">
+                                            <i class="fas fa-redo"></i> Restart
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-primary video-btn" onclick="toggleFullscreen()">
+                                            <i class="fas fa-expand"></i> Fullscreen
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<!-- Fallback for lessons without videos - will be shown only if a video couldn't be found -->
+<div class="row mt-5 mb-5 video-section">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm video-card">
+            <div class="card-header bg-primary text-white py-3">
+                <h2 class="mb-0 video-title">
+                    <i class="fas fa-film me-2"></i> Watch and Learn
+                </h2>
+            </div>
+            <div class="card-body text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-video fa-5x text-muted"></i>
+                </div>
+                <h3 class="h4 mb-3">Video Coming Soon!</h3>
+                <p class="mb-4">We're preparing a fun cartoon video for this lesson. Check back soon!</p>
+                <button class="btn btn-primary video-btn" id="find-video-btn">
+                    <i class="fas fa-search me-2"></i> Find a Video Now
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 <div class="row mt-4">
     <div class="col-12">
@@ -229,6 +310,107 @@
             
             // Speak the feedback
             speakText(feedback);
+        }
+        
+        // Video control functions
+        window.toggleVideo = function() {
+            const video = document.getElementById('lesson-video');
+            const btnIcon = document.getElementById('video-btn-icon');
+            const btnText = document.getElementById('video-btn-text');
+            
+            if (!video) return;
+            
+            // Get the iframe's src
+            const src = video.src;
+            
+            // Check if the video is paused (by checking if ?autoplay=1 is in the URL)
+            const isPaused = !src.includes('autoplay=1');
+            
+            if (isPaused) {
+                // Play the video
+                if (src.includes('?')) {
+                    video.src = src + '&autoplay=1';
+                } else {
+                    video.src = src + '?autoplay=1';
+                }
+                btnIcon.className = 'fas fa-pause me-2';
+                btnText.textContent = 'Pause Video';
+            } else {
+                // Pause the video by reloading it without autoplay
+                video.src = src.replace('&autoplay=1', '').replace('?autoplay=1', '');
+                btnIcon.className = 'fas fa-play me-2';
+                btnText.textContent = 'Play Video';
+            }
+        };
+        
+        window.restartVideo = function() {
+            const video = document.getElementById('lesson-video');
+            if (!video) return;
+            
+            // Get the base URL without parameters
+            let src = video.src;
+            if (src.includes('?')) {
+                src = src.split('?')[0];
+            }
+            
+            // Reload the video
+            video.src = src;
+            
+            // Update button state
+            const btnIcon = document.getElementById('video-btn-icon');
+            const btnText = document.getElementById('video-btn-text');
+            btnIcon.className = 'fas fa-play me-2';
+            btnText.textContent = 'Play Video';
+        };
+        
+        window.toggleFullscreen = function() {
+            const video = document.getElementById('lesson-video');
+            if (!video) return;
+            
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else {
+                video.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            }
+        };
+        
+        // Find a video button functionality
+        const findVideoBtn = document.getElementById('find-video-btn');
+        if (findVideoBtn) {
+            findVideoBtn.addEventListener('click', function() {
+                // Show loading state
+                this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Finding Video...';
+                this.disabled = true;
+                
+                // Make an AJAX call to find a video
+                fetch('{% url "learning_app:find_video_for_lesson" lesson.id %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Reload the page to show the new video
+                        window.location.reload();
+                    } else {
+                        // Show error
+                        this.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i> Try Again';
+                        this.disabled = false;
+                        alert('Could not find a video. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    this.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i> Try Again';
+                    this.disabled = false;
+                });
+            });
         }
     });
 </script>

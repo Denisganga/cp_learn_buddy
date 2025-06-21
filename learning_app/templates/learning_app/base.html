@@ -7,6 +7,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/static/css/emotion-detection.css">
+    <link rel="stylesheet" href="/static/css/custom.css">
+    <link rel="stylesheet" href="/static/css/avatar.css">
+    {% block extra_css %}{% endblock %}
     <style>
         :root {
             --primary-color: #4e73df;
@@ -334,9 +337,8 @@
             margin-top: 50px;
         }
     </style>
-    {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="{% if user.is_authenticated %}logged-in{% endif %}">
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="{% url 'learning_app:home' %}">
@@ -362,6 +364,16 @@
                             <i class="fas fa-magic me-1"></i> Create Lesson
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'learning_app:workout_recommendation' %}">
+                            <i class="fas fa-running me-1"></i> Workout
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'learning_app:plan_list' %}">
+                            <i class="fas fa-calendar-alt me-1"></i> Plans
+                        </a>
+                    </li>
                     {% if user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'learning_app:progress' %}">
@@ -371,6 +383,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'learning_app:rewards' %}">
                             <i class="fas fa-award me-1"></i> Rewards
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'learning_app:avatar_selection' %}">
+                            <i class="fas fa-user-circle me-1"></i> My Avatar
                         </a>
                     </li>
                     <li class="nav-item">
@@ -486,6 +503,7 @@
     <!-- Face API and Emotion Detection -->
     <script src="/static/js/face-api/face-api.min.js"></script>
     <script src="/static/js/emotion-detection.js"></script>
+    <script src="/static/js/avatar.js"></script>
     
     {% block extra_js %}{% endblock %}
 </body>

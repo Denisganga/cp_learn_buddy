@@ -1,0 +1,410 @@
+{% extends 'learning_app/base.html' %}
+
+{% block title %}CP Learn Buddy - Customize Your Avatar{% endblock %}
+
+{% block extra_css %}
+<style>
+    .avatar-container {
+        position: relative;
+        text-align: center;
+        padding: 20px;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .avatar-container:hover {
+        transform: translateY(-5px);
+    }
+    
+    .avatar-image {
+        width: 200px;
+        height: 200px;
+        object-fit: contain;
+        margin-bottom: 15px;
+    }
+    
+    .avatar-speech-bubble {
+        position: relative;
+        background-color: white;
+        border-radius: 20px;
+        padding: 15px;
+        margin-top: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        max-width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .avatar-speech-bubble:after {
+        content: '';
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 0 15px 15px;
+        border-style: solid;
+        border-color: white transparent;
+    }
+    
+    .voice-option {
+        cursor: pointer;
+        padding: 10px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .voice-option:hover {
+        background-color: #f8f9fc;
+    }
+    
+    .voice-option.selected {
+        background-color: #e8f0fe;
+        border-left: 3px solid #4e73df;
+    }
+    
+    .voice-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+    
+    .color-option {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        cursor: pointer;
+        margin: 0 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .color-option:hover {
+        transform: scale(1.2);
+    }
+    
+    .color-option.selected {
+        border: 2px solid #333;
+    }
+    
+    .color-blue {
+        background-color: #4e73df;
+    }
+    
+    .color-green {
+        background-color: #1cc88a;
+    }
+    
+    .color-purple {
+        background-color: #6f42c1;
+    }
+    
+    .color-orange {
+        background-color: #fd7e14;
+    }
+    
+    .color-pink {
+        background-color: #e83e8c;
+    }
+    
+    .speech-button {
+        margin: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .speech-button:hover {
+        transform: translateY(-3px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'learning_app:home' %}">Home</a></li>
+                <li class="breadcrumb-item active">Customize Your Avatar</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12 text-center">
+        <h1 class="display-4 fw-bold text-primary">Customize {{ avatar.name }}</h1>
+        <p class="lead">Personalize your learning buddy to make it uniquely yours!</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-5 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-primary text-white py-3">
+                <h2 class="h4 mb-0">Your Avatar</h2>
+            </div>
+            <div class="card-body">
+                <div class="avatar-container">
+                    <img src="{{ avatar.get_avatar_image_url }}" 
+                         alt="{{ avatar.name }}" 
+                         class="avatar-image"
+                         onerror="this.src='https://via.placeholder.com/200x200?text={{ avatar.character }}'">
+                    <h3 class="h3 mb-3">{{ avatar.name }}</h3>
+                    
+                    <div class="avatar-speech-bubble">
+                        <p id="avatarSpeech" class="mb-0">{{ avatar.get_greeting }}</p>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button type="button" class="btn btn-primary speech-button" id="greetingBtn">
+                            <i class="fas fa-comment me-2"></i> Greeting
+                        </button>
+                        <button type="button" class="btn btn-success speech-button" id="encouragementBtn">
+                            <i class="fas fa-thumbs-up me-2"></i> Encouragement
+                        </button>
+                        <button type="button" class="btn btn-warning speech-button" id="celebrationBtn">
+                            <i class="fas fa-star me-2"></i> Celebration
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white py-3">
+                <h2 class="h4 mb-0">Customize Settings</h2>
+            </div>
+            <div class="card-body">
+                <form action="{% url 'learning_app:avatar_customize' avatar.id %}" method="post" id="customizeForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="voice_type" id="voiceTypeInput" value="{{ avatar.voice_type }}">
+                    <input type="hidden" name="color_scheme" id="colorSchemeInput" value="{{ avatar.color_scheme }}">
+                    
+                    <div class="mb-4">
+                        <label for="avatarName" class="form-label">Avatar Name</label>
+                        <input type="text" class="form-control" id="avatarName" name="name" value="{{ avatar.name }}" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Voice Type</label>
+                        
+                        <div class="row">
+                            {% for value, display in voice_types %}
+                            <div class="col-md-6 mb-3">
+                                <div class="voice-option p-3 {% if avatar.voice_type == value %}selected{% endif %}" data-voice-type="{{ value }}">
+                                    <div class="d-flex align-items-center">
+                                        {% if value == 'friendly' %}
+                                        <i class="fas fa-smile voice-icon text-primary me-3"></i>
+                                        {% elif value == 'cheerful' %}
+                                        <i class="fas fa-laugh-beam voice-icon text-warning me-3"></i>
+                                        {% elif value == 'calm' %}
+                                        <i class="fas fa-peace voice-icon text-info me-3"></i>
+                                        {% elif value == 'encouraging' %}
+                                        <i class="fas fa-thumbs-up voice-icon text-success me-3"></i>
+                                        {% endif %}
+                                        <div>
+                                            <h3 class="h5 mb-1">{{ display }}</h3>
+                                            <p class="small text-muted mb-0">
+                                                {% if value == 'friendly' %}
+                                                Warm and supportive
+                                                {% elif value == 'cheerful' %}
+                                                Upbeat and energetic
+                                                {% elif value == 'calm' %}
+                                                Gentle and soothing
+                                                {% elif value == 'encouraging' %}
+                                                Motivating and positive
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary mt-2 preview-voice-btn">
+                                        <i class="fas fa-play me-1"></i> Preview
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Color Scheme</label>
+                        
+                        <div class="d-flex mb-3">
+                            <div class="color-option color-blue {% if avatar.color_scheme == 'blue' %}selected{% endif %}" data-color="blue"></div>
+                            <div class="color-option color-green {% if avatar.color_scheme == 'green' %}selected{% endif %}" data-color="green"></div>
+                            <div class="color-option color-purple {% if avatar.color_scheme == 'purple' %}selected{% endif %}" data-color="purple"></div>
+                            <div class="color-option color-orange {% if avatar.color_scheme == 'orange' %}selected{% endif %}" data-color="orange"></div>
+                            <div class="color-option color-pink {% if avatar.color_scheme == 'pink' %}selected{% endif %}" data-color="pink"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="customGreeting" class="form-label">Custom Greeting (Optional)</label>
+                        <textarea class="form-control" id="customGreeting" name="custom_greeting" rows="3" placeholder="Enter a custom greeting for your avatar">{{ avatar.custom_greeting }}</textarea>
+                        <div class="form-text">Leave blank to use the default greeting for the selected voice type.</div>
+                    </div>
+                    
+                    <div class="text-end">
+                        <a href="{% url 'learning_app:home' %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const customizeForm = document.getElementById('customizeForm');
+        const voiceTypeInput = document.getElementById('voiceTypeInput');
+        const colorSchemeInput = document.getElementById('colorSchemeInput');
+        const avatarName = document.getElementById('avatarName');
+        const avatarSpeech = document.getElementById('avatarSpeech');
+        
+        // Handle voice type selection
+        const voiceOptions = document.querySelectorAll('.voice-option');
+        voiceOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const voiceType = this.dataset.voiceType;
+                voiceTypeInput.value = voiceType;
+                
+                // Update visual selection
+                document.querySelectorAll('.voice-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+            });
+        });
+        
+        // Handle color selection
+        const colorOptions = document.querySelectorAll('.color-option');
+        colorOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const color = this.dataset.color;
+                colorSchemeInput.value = color;
+                
+                // Update visual selection
+                document.querySelectorAll('.color-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+            });
+        });
+        
+        // Preview voice buttons
+        const previewVoiceButtons = document.querySelectorAll('.preview-voice-btn');
+        previewVoiceButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const voiceType = this.closest('.voice-option').dataset.voiceType;
+                const name = avatarName.value;
+                
+                let message = '';
+                switch(voiceType) {
+                    case 'friendly':
+                        message = `Hi there! I'm ${name}, your learning buddy!`;
+                        break;
+                    case 'cheerful':
+                        message = `Hello! I'm ${name}! Let's have fun learning together!`;
+                        break;
+                    case 'calm':
+                        message = `Welcome. I'm ${name}, and I'm here to help you learn.`;
+                        break;
+                    case 'encouraging':
+                        message = `Hey there! I'm ${name}! You're going to do great today!`;
+                        break;
+                    default:
+                        message = `Hi, I'm ${name}!`;
+                }
+                
+                // Update speech bubble
+                avatarSpeech.textContent = message;
+                
+                // Use text-to-speech to preview the voice
+                speakText(message);
+            });
+        });
+        
+        // Speech buttons
+        document.getElementById('greetingBtn').addEventListener('click', function() {
+            const customGreeting = document.getElementById('customGreeting').value;
+            let message = '';
+            
+            if (customGreeting) {
+                message = customGreeting;
+            } else {
+                const voiceType = voiceTypeInput.value;
+                const name = avatarName.value;
+                
+                switch(voiceType) {
+                    case 'friendly':
+                        message = `Hi there! I'm ${name}, your learning buddy!`;
+                        break;
+                    case 'cheerful':
+                        message = `Hello! I'm ${name}! Let's have fun learning together!`;
+                        break;
+                    case 'calm':
+                        message = `Welcome. I'm ${name}, and I'm here to help you learn.`;
+                        break;
+                    case 'encouraging':
+                        message = `Hey there! I'm ${name}! You're going to do great today!`;
+                        break;
+                    default:
+                        message = `Hi, I'm ${name}!`;
+                }
+            }
+            
+            // Update speech bubble
+            avatarSpeech.textContent = message;
+            
+            // Use text-to-speech
+            speakText(message);
+        });
+        
+        document.getElementById('encouragementBtn').addEventListener('click', function() {
+            const encouragements = [
+                "You're doing great! Keep it up!",
+                "Wow! You're making amazing progress!",
+                "I believe in you! You can do it!",
+                "That's the way! You're learning so much!",
+                "Fantastic job! You're so smart!",
+                "Keep going! You're on the right track!",
+                "I'm so proud of you!",
+                "You're a superstar learner!"
+            ];
+            
+            const message = encouragements[Math.floor(Math.random() * encouragements.length)];
+            
+            // Update speech bubble
+            avatarSpeech.textContent = message;
+            
+            // Use text-to-speech
+            speakText(message);
+        });
+        
+        document.getElementById('celebrationBtn').addEventListener('click', function() {
+            const celebrations = [
+                "Hooray! You did it!",
+                "Amazing job! You're awesome!",
+                "Woohoo! That's fantastic!",
+                "Congratulations! You're a champion!",
+                "Yay! You've earned a big high-five!",
+                "Incredible work! You should be so proud!",
+                "That's a win! You're crushing it!",
+                "Spectacular! You're a learning superstar!"
+            ];
+            
+            const message = celebrations[Math.floor(Math.random() * celebrations.length)];
+            
+            // Update speech bubble
+            avatarSpeech.textContent = message;
+            
+            // Use text-to-speech
+            speakText(message);
+        });
+    });
+</script>
+{% endblock %}

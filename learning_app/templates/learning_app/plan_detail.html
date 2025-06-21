@@ -1,0 +1,429 @@
+{% extends 'learning_app/base.html' %}
+{% load plan_extras %}
+
+{% block title %}CP Learn Buddy - {{ plan.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .day-column {
+        min-height: 200px;
+    }
+    
+    .time-slot {
+        border-left: 4px solid transparent;
+        transition: all 0.3s ease;
+    }
+    
+    .time-slot:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .time-slot.morning {
+        border-left-color: #ffc107;
+    }
+    
+    .time-slot.afternoon {
+        border-left-color: #17a2b8;
+    }
+    
+    .time-slot.evening {
+        border-left-color: #6f42c1;
+    }
+    
+    .activity-card {
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .activity-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .activity-card.lesson {
+        border-left: 4px solid #4e73df;
+    }
+    
+    .activity-card.exercise {
+        border-left: 4px solid #1cc88a;
+    }
+    
+    .activity-card.break {
+        border-left: 4px solid #f6c23e;
+    }
+    
+    .activity-card.completed {
+        background-color: #f2fff8;
+    }
+    
+    .activity-card.completed .activity-title {
+        text-decoration: line-through;
+        color: #6c757d;
+    }
+    
+    .add-activity-btn {
+        opacity: 0.5;
+        transition: all 0.3s ease;
+    }
+    
+    .time-slot:hover .add-activity-btn {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'learning_app:home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'learning_app:plan_list' %}">Activity Plans</a></li>
+                <li class="breadcrumb-item active">{{ plan.title }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="display-4 fw-bold text-primary">{{ plan.title }}</h1>
+        {% if plan.description %}
+        <p class="lead">{{ plan.description }}</p>
+        {% endif %}
+    </div>
+    <div class="col-md-4 text-md-end">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addActivityModal">
+            <i class="fas fa-plus-circle me-2"></i> Add Activity
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white py-3">
+                <h2 class="h4 mb-0">Weekly Schedule</h2>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 14.28%">Monday</th>
+                                <th style="width: 14.28%">Tuesday</th>
+                                <th style="width: 14.28%">Wednesday</th>
+                                <th style="width: 14.28%">Thursday</th>
+                                <th style="width: 14.28%">Friday</th>
+                                <th style="width: 14.28%">Saturday</th>
+                                <th style="width: 14.28%">Sunday</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                {% for day, day_display in days_of_week %}
+                                <td class="day-column p-0">
+                                    <!-- Morning time slot -->
+                                    <div class="time-slot morning p-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h3 class="h6 mb-0 text-warning">
+                                                <i class="fas fa-sun me-1"></i> Morning
+                                            </h3>
+                                            <button class="btn btn-sm btn-outline-primary add-activity-btn" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#addActivityModal"
+                                                    data-day="{{ day }}"
+                                                    data-time-slot="morning">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        {% for activity in activities_by_day|get_item:day %}
+                                            {% if activity.time_slot == 'morning' %}
+                                            <div class="activity-card {{ activity.activity_type }} {% if activity.completed %}completed{% endif %} card mb-2">
+                                                <div class="card-body p-2">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <h4 class="h6 mb-1 activity-title">{{ activity.get_activity_name }}</h4>
+                                                        <span class="badge {% if activity.activity_type == 'lesson' %}bg-primary{% elif activity.activity_type == 'exercise' %}bg-success{% else %}bg-warning{% endif %}">
+                                                            {{ activity.get_activity_type_display }}
+                                                        </span>
+                                                    </div>
+                                                    <p class="small mb-2">{{ activity.duration_minutes }} minutes</p>
+                                                    <div class="d-flex justify-content-between">
+                                                        {% if activity.get_activity_url %}
+                                                        <a href="{{ activity.get_activity_url }}" class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-play me-1"></i> Start
+                                                        </a>
+                                                        {% endif %}
+                                                        
+                                                        <div>
+                                                            {% if not activity.completed %}
+                                                            <a href="{% url 'learning_app:mark_activity_complete' activity.id %}" class="btn btn-sm btn-outline-success">
+                                                                <i class="fas fa-check"></i>
+                                                            </a>
+                                                            {% endif %}
+                                                            <a href="{% url 'learning_app:delete_activity' activity.id %}" class="btn btn-sm btn-outline-danger">
+                                                                <i class="fas fa-trash-alt"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    <!-- Afternoon time slot -->
+                                    <div class="time-slot afternoon p-3 border-top">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h3 class="h6 mb-0 text-info">
+                                                <i class="fas fa-cloud-sun me-1"></i> Afternoon
+                                            </h3>
+                                            <button class="btn btn-sm btn-outline-primary add-activity-btn" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#addActivityModal"
+                                                    data-day="{{ day }}"
+                                                    data-time-slot="afternoon">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        {% for activity in activities_by_day|get_item:day %}
+                                            {% if activity.time_slot == 'afternoon' %}
+                                            <div class="activity-card {{ activity.activity_type }} {% if activity.completed %}completed{% endif %} card mb-2">
+                                                <div class="card-body p-2">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <h4 class="h6 mb-1 activity-title">{{ activity.get_activity_name }}</h4>
+                                                        <span class="badge {% if activity.activity_type == 'lesson' %}bg-primary{% elif activity.activity_type == 'exercise' %}bg-success{% else %}bg-warning{% endif %}">
+                                                            {{ activity.get_activity_type_display }}
+                                                        </span>
+                                                    </div>
+                                                    <p class="small mb-2">{{ activity.duration_minutes }} minutes</p>
+                                                    <div class="d-flex justify-content-between">
+                                                        {% if activity.get_activity_url %}
+                                                        <a href="{{ activity.get_activity_url }}" class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-play me-1"></i> Start
+                                                        </a>
+                                                        {% endif %}
+                                                        
+                                                        <div>
+                                                            {% if not activity.completed %}
+                                                            <a href="{% url 'learning_app:mark_activity_complete' activity.id %}" class="btn btn-sm btn-outline-success">
+                                                                <i class="fas fa-check"></i>
+                                                            </a>
+                                                            {% endif %}
+                                                            <a href="{% url 'learning_app:delete_activity' activity.id %}" class="btn btn-sm btn-outline-danger">
+                                                                <i class="fas fa-trash-alt"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    <!-- Evening time slot -->
+                                    <div class="time-slot evening p-3 border-top">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h3 class="h6 mb-0 text-purple">
+                                                <i class="fas fa-moon me-1"></i> Evening
+                                            </h3>
+                                            <button class="btn btn-sm btn-outline-primary add-activity-btn" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#addActivityModal"
+                                                    data-day="{{ day }}"
+                                                    data-time-slot="evening">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        {% for activity in activities_by_day|get_item:day %}
+                                            {% if activity.time_slot == 'evening' %}
+                                            <div class="activity-card {{ activity.activity_type }} {% if activity.completed %}completed{% endif %} card mb-2">
+                                                <div class="card-body p-2">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <h4 class="h6 mb-1 activity-title">{{ activity.get_activity_name }}</h4>
+                                                        <span class="badge {% if activity.activity_type == 'lesson' %}bg-primary{% elif activity.activity_type == 'exercise' %}bg-success{% else %}bg-warning{% endif %}">
+                                                            {{ activity.get_activity_type_display }}
+                                                        </span>
+                                                    </div>
+                                                    <p class="small mb-2">{{ activity.duration_minutes }} minutes</p>
+                                                    <div class="d-flex justify-content-between">
+                                                        {% if activity.get_activity_url %}
+                                                        <a href="{{ activity.get_activity_url }}" class="btn btn-sm btn-outline-primary">
+                                                            <i class="fas fa-play me-1"></i> Start
+                                                        </a>
+                                                        {% endif %}
+                                                        
+                                                        <div>
+                                                            {% if not activity.completed %}
+                                                            <a href="{% url 'learning_app:mark_activity_complete' activity.id %}" class="btn btn-sm btn-outline-success">
+                                                                <i class="fas fa-check"></i>
+                                                            </a>
+                                                            {% endif %}
+                                                            <a href="{% url 'learning_app:delete_activity' activity.id %}" class="btn btn-sm btn-outline-danger">
+                                                                <i class="fas fa-trash-alt"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </td>
+                                {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white py-3">
+                <h2 class="h4 mb-0">Plan Progress</h2>
+            </div>
+            <div class="card-body">
+                {% with completed_count=plan.activities.filter.completed.count total_count=plan.activities.count %}
+                {% if total_count > 0 %}
+                <div class="progress-container">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>{{ completed_count }} of {{ total_count }} activities completed</span>
+                        <span>{{ completed_count|floatformat:0 }}%</span>
+                    </div>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ completed_count|floatformat:0 }}%"></div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-center">No activities added to this plan yet.</p>
+                {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Activity Modal -->
+<div class="modal fade" id="addActivityModal" tabindex="-1" aria-labelledby="addActivityModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addActivityModalLabel">Add Activity to Plan</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'learning_app:add_activity' plan.id %}" method="post" id="addActivityForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="day_of_week" id="dayOfWeekInput" value="monday">
+                    <input type="hidden" name="time_slot" id="timeSlotInput" value="morning">
+                    
+                    <div class="mb-3">
+                        <label for="activityTypeSelect" class="form-label">Activity Type</label>
+                        <select class="form-select" id="activityTypeSelect" name="activity_type" required>
+                            {% for value, display in activity_types %}
+                            <option value="{{ value }}">{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3 activity-specific lesson-specific">
+                        <label for="lessonSelect" class="form-label">Select Lesson</label>
+                        <select class="form-select" id="lessonSelect" name="lesson_id">
+                            <option value="">-- Select a Lesson --</option>
+                            {% for lesson in lessons %}
+                            <option value="{{ lesson.id }}">{{ lesson.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3 activity-specific exercise-specific" style="display: none;">
+                        <label for="exerciseSelect" class="form-label">Select Exercise</label>
+                        <select class="form-select" id="exerciseSelect" name="exercise_id">
+                            <option value="">-- Select an Exercise --</option>
+                            {% for exercise in exercises %}
+                            <option value="{{ exercise.id }}">{{ exercise.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3 activity-specific break-specific" style="display: none;">
+                        <label for="breakTitleInput" class="form-label">Break Title</label>
+                        <input type="text" class="form-control" id="breakTitleInput" name="title" placeholder="e.g., Snack Time, Rest Period">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="durationInput" class="form-label">Duration (minutes)</label>
+                        <input type="number" class="form-control" id="durationInput" name="duration_minutes" value="30" min="5" max="120" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notesTextarea" class="form-label">Notes (optional)</label>
+                        <textarea class="form-control" id="notesTextarea" name="notes" rows="3" placeholder="Any special instructions or notes about this activity"></textarea>
+                    </div>
+                    
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Activity</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle activity type selection
+        const activityTypeSelect = document.getElementById('activityTypeSelect');
+        const lessonSpecific = document.querySelector('.lesson-specific');
+        const exerciseSpecific = document.querySelector('.exercise-specific');
+        const breakSpecific = document.querySelector('.break-specific');
+        
+        activityTypeSelect.addEventListener('change', function() {
+            // Hide all specific sections
+            document.querySelectorAll('.activity-specific').forEach(el => {
+                el.style.display = 'none';
+            });
+            
+            // Show the relevant section based on selection
+            if (this.value === 'lesson') {
+                lessonSpecific.style.display = 'block';
+            } else if (this.value === 'exercise') {
+                exerciseSpecific.style.display = 'block';
+            } else if (this.value === 'break') {
+                breakSpecific.style.display = 'block';
+            }
+        });
+        
+        // Handle add activity button clicks to set day and time slot
+        const addActivityBtns = document.querySelectorAll('.add-activity-btn');
+        const dayOfWeekInput = document.getElementById('dayOfWeekInput');
+        const timeSlotInput = document.getElementById('timeSlotInput');
+        
+        addActivityBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const day = this.dataset.day;
+                const timeSlot = this.dataset.timeSlot;
+                
+                dayOfWeekInput.value = day;
+                timeSlotInput.value = timeSlot;
+                
+                // Update modal title to reflect the selected day and time
+                const dayDisplay = day.charAt(0).toUpperCase() + day.slice(1);
+                const timeDisplay = timeSlot.charAt(0).toUpperCase() + timeSlot.slice(1);
+                document.getElementById('addActivityModalLabel').textContent = 
+                    `Add Activity to ${dayDisplay} ${timeDisplay}`;
+            });
+        });
+    });
+</script>
+{% endblock %}

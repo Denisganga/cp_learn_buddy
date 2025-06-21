@@ -1,0 +1,489 @@
+{% extends 'learning_app/base.html' %}
+{% load avatar_extras %}
+
+{% block title %}CP Learn Buddy - Choose Your Avatar{% endblock %}
+
+{% block extra_css %}
+<style>
+    .avatar-option {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 3px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 10px;
+        background-color: #f8f9fc;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        margin-bottom: 15px;
+    }
+    
+    .avatar-option:hover {
+        transform: translateY(-5px);
+        border-color: #4e73df;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .avatar-option.selected {
+        border-color: #4e73df;
+        background-color: #eef5ff;
+        box-shadow: 0 6px 12px rgba(78, 115, 223, 0.2);
+    }
+    
+    .avatar-image {
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+        margin-bottom: 10px;
+        background-color: white;
+        border-radius: 50%;
+        padding: 10px;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .avatar-tabs .nav-link {
+        border-radius: 10px 10px 0 0;
+        font-weight: bold;
+        background-color: #f0f0f0;
+        color: #555;
+        margin-right: 5px;
+        border: 1px solid #ddd;
+        border-bottom: none;
+    }
+    
+    .avatar-tabs .nav-link.active {
+        background-color: #4e73df;
+        color: white;
+        border-color: #4e73df;
+    }
+    
+    .voice-option {
+        cursor: pointer;
+        padding: 15px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        background-color: #f8f9fc;
+        border: 2px solid #e0e0e0;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .voice-option:hover {
+        background-color: #eef5ff;
+        border-color: #4e73df;
+    }
+    
+    .voice-option.selected {
+        background-color: #eef5ff;
+        border: 2px solid #4e73df;
+        box-shadow: 0 6px 12px rgba(78, 115, 223, 0.2);
+    }
+    
+    .voice-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        color: #4e73df;
+    }
+    
+    .preview-button {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        opacity: 0.9;
+        transition: all 0.3s ease;
+        background-color: rgba(255, 255, 255, 0.9);
+        border: 1px solid #4e73df;
+        color: #4e73df;
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+    
+    .preview-button:hover {
+        opacity: 1;
+        background-color: #4e73df;
+        color: white;
+    }
+    
+    .color-option {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        margin: 0 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        border: 2px solid #fff;
+    }
+    
+    .color-option:hover {
+        transform: scale(1.2);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .color-option.selected {
+        border: 3px solid #333;
+        box-shadow: 0 0 0 2px white, 0 0 0 4px #333;
+    }
+    
+    .color-blue {
+        background-color: #4e73df;
+    }
+    
+    .color-green {
+        background-color: #1cc88a;
+    }
+    
+    .color-purple {
+        background-color: #6f42c1;
+    }
+    
+    .color-orange {
+        background-color: #fd7e14;
+    }
+    
+    .color-pink {
+        background-color: #e83e8c;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'learning_app:home' %}">Home</a></li>
+                <li class="breadcrumb-item active">Choose Your Avatar</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12 text-center">
+        <h1 class="display-4 fw-bold text-primary">Choose Your Learning Buddy</h1>
+        <p class="lead">Select a friendly avatar that will help you on your learning journey!</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <form action="{% url 'learning_app:avatar_selection' %}" method="post" id="avatarForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="avatar_type" id="avatarTypeInput" value="animal">
+                    <input type="hidden" name="character" id="characterInput" value="">
+                    <input type="hidden" name="voice_type" id="voiceTypeInput" value="friendly">
+                    <input type="hidden" name="color_scheme" id="colorSchemeInput" value="blue">
+                    
+                    <div class="p-4">
+                        <h2 class="h4 mb-4">Step 1: Name Your Avatar</h2>
+                        <div class="mb-4">
+                            <label for="avatarName" class="form-label">What's your avatar's name?</label>
+                            <input type="text" class="form-control form-control-lg" id="avatarName" name="name" placeholder="Enter a name for your avatar" required>
+                        </div>
+                    </div>
+                    
+                    <div class="border-top p-4">
+                        <h2 class="h4 mb-4">Step 2: Choose Your Avatar</h2>
+                        
+                        <ul class="nav nav-tabs avatar-tabs mb-4" id="avatarTabs" role="tablist">
+                            {% for value, display in avatar_types %}
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link {% if forloop.first %}active{% endif %}" 
+                                        id="{{ value }}-tab" 
+                                        data-bs-toggle="tab" 
+                                        data-bs-target="#{{ value }}" 
+                                        type="button" 
+                                        role="tab" 
+                                        aria-controls="{{ value }}" 
+                                        aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                                        data-avatar-type="{{ value }}">
+                                    {{ display }}
+                                </button>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        
+                        <div class="tab-content" id="avatarTabsContent">
+                            {% for type_value, type_display in avatar_types %}
+                            <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" 
+                                 id="{{ type_value }}" 
+                                 role="tabpanel" 
+                                 aria-labelledby="{{ type_value }}-tab">
+                                
+                                <div class="row">
+                                    {% for character in available_avatars|get_item:type_value %}
+                                    <div class="col-6 col-md-4 col-lg-3 mb-4">
+                                        <div class="avatar-option text-center position-relative" data-character="{{ character }}">
+                                            <div class="avatar-image-bg d-flex align-items-center justify-content-center mb-2" style="background-color: #f0f7ff; border-radius: 50%; width: 120px; height: 120px; margin: 0 auto;">
+                                                <img src="/static/images/avatars/{{ type_value }}/{{ character }}.png" 
+                                                     alt="{{ character }}" 
+                                                     class="avatar-image"
+                                                     onerror="this.src='https://via.placeholder.com/100x100/4e73df/ffffff?text={{ character|title }}'">
+                                            </div>
+                                            <h3 class="h6 mb-0 fw-bold text-primary">{{ character|title }}</h3>
+                                            <button type="button" class="btn btn-sm btn-outline-primary preview-button">
+                                                <i class="fas fa-volume-up"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="border-top p-4">
+                        <h2 class="h4 mb-4">Step 3: Choose a Voice</h2>
+                        
+                        <div class="row">
+                            {% for value, display in voice_types %}
+                            <div class="col-md-6 col-lg-3 mb-4">
+                                <div class="voice-option text-center p-3" data-voice-type="{{ value }}">
+                                    <div class="voice-icon-container d-flex align-items-center justify-content-center mb-2" style="background-color: #f0f7ff; border-radius: 50%; width: 70px; height: 70px; margin: 0 auto;">
+                                        {% if value == 'friendly' %}
+                                        <i class="fas fa-smile voice-icon text-primary"></i>
+                                        {% elif value == 'cheerful' %}
+                                        <i class="fas fa-laugh-beam voice-icon text-warning"></i>
+                                        {% elif value == 'calm' %}
+                                        <i class="fas fa-peace voice-icon text-info"></i>
+                                        {% elif value == 'encouraging' %}
+                                        <i class="fas fa-thumbs-up voice-icon text-success"></i>
+                                        {% endif %}
+                                    </div>
+                                    <h3 class="h5 fw-bold">{{ display }}</h3>
+                                    <p class="small text-muted mb-0">
+                                        {% if value == 'friendly' %}
+                                        Warm and supportive
+                                        {% elif value == 'cheerful' %}
+                                        Upbeat and energetic
+                                        {% elif value == 'calm' %}
+                                        Gentle and soothing
+                                        {% elif value == 'encouraging' %}
+                                        Motivating and positive
+                                        {% endif %}
+                                    </p>
+                                    <button type="button" class="btn btn-sm btn-outline-primary mt-2 preview-voice-btn">
+                                        <i class="fas fa-play me-1"></i> Preview
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="border-top p-4">
+                        <h2 class="h4 mb-4">Step 4: Choose a Color</h2>
+                        
+                        <div class="d-flex justify-content-center mb-4">
+                            <div class="color-option color-blue selected" data-color="blue">
+                                <span class="visually-hidden">Blue</span>
+                            </div>
+                            <div class="color-option color-green" data-color="green">
+                                <span class="visually-hidden">Green</span>
+                            </div>
+                            <div class="color-option color-purple" data-color="purple">
+                                <span class="visually-hidden">Purple</span>
+                            </div>
+                            <div class="color-option color-orange" data-color="orange">
+                                <span class="visually-hidden">Orange</span>
+                            </div>
+                            <div class="color-option color-pink" data-color="pink">
+                                <span class="visually-hidden">Pink</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="border-top p-4 text-center">
+                        <button type="submit" class="btn btn-primary btn-lg px-5 py-3" id="createAvatarBtn" disabled>
+                            <i class="fas fa-magic me-2"></i> Create My Avatar
+                        </button>
+                        <p class="text-muted mt-3">Choose an avatar and give it a name to continue</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="previewModalLabel">Meet Your Avatar</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="previewImage" src="" alt="Avatar Preview" class="img-fluid mb-3" style="max-height: 200px;">
+                <h3 id="previewName" class="h4 mb-3">Your Avatar</h3>
+                <p id="previewMessage" class="lead"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const avatarForm = document.getElementById('avatarForm');
+        const avatarTypeInput = document.getElementById('avatarTypeInput');
+        const characterInput = document.getElementById('characterInput');
+        const voiceTypeInput = document.getElementById('voiceTypeInput');
+        const colorSchemeInput = document.getElementById('colorSchemeInput');
+        const avatarName = document.getElementById('avatarName');
+        const createAvatarBtn = document.getElementById('createAvatarBtn');
+        
+        // Handle avatar tab selection
+        const avatarTabs = document.querySelectorAll('[data-avatar-type]');
+        avatarTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const avatarType = this.dataset.avatarType;
+                avatarTypeInput.value = avatarType;
+                
+                // Reset character selection when changing tabs
+                characterInput.value = '';
+                document.querySelectorAll('.avatar-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                
+                // Check if form is valid
+                checkFormValidity();
+            });
+        });
+        
+        // Handle avatar character selection
+        const avatarOptions = document.querySelectorAll('.avatar-option');
+        avatarOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const character = this.dataset.character;
+                characterInput.value = character;
+                
+                // Update visual selection
+                document.querySelectorAll('.avatar-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                
+                // Check if form is valid
+                checkFormValidity();
+            });
+        });
+        
+        // Handle voice type selection
+        const voiceOptions = document.querySelectorAll('.voice-option');
+        voiceOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const voiceType = this.dataset.voiceType;
+                voiceTypeInput.value = voiceType;
+                
+                // Update visual selection
+                document.querySelectorAll('.voice-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                
+                // Check if form is valid
+                checkFormValidity();
+            });
+        });
+        
+        // Handle color selection
+        const colorOptions = document.querySelectorAll('.color-option');
+        colorOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const color = this.dataset.color;
+                colorSchemeInput.value = color;
+                
+                // Update visual selection
+                document.querySelectorAll('.color-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+            });
+        });
+        
+        // Preview voice buttons
+        const previewVoiceButtons = document.querySelectorAll('.preview-voice-btn');
+        previewVoiceButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const voiceType = this.closest('.voice-option').dataset.voiceType;
+                const name = avatarName.value || 'Your Avatar';
+                
+                let message = '';
+                switch(voiceType) {
+                    case 'friendly':
+                        message = `Hi there! I'm ${name}, your learning buddy!`;
+                        break;
+                    case 'cheerful':
+                        message = `Hello! I'm ${name}! Let's have fun learning together!`;
+                        break;
+                    case 'calm':
+                        message = `Welcome. I'm ${name}, and I'm here to help you learn.`;
+                        break;
+                    case 'encouraging':
+                        message = `Hey there! I'm ${name}! You're going to do great today!`;
+                        break;
+                    default:
+                        message = `Hi, I'm ${name}!`;
+                }
+                
+                // Use text-to-speech to preview the voice
+                speakText(message);
+            });
+        });
+        
+        // Preview avatar buttons
+        const previewButtons = document.querySelectorAll('.preview-button');
+        previewButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent triggering the parent's click event
+                
+                const avatarOption = this.closest('.avatar-option');
+                const character = avatarOption.dataset.character;
+                const avatarType = document.querySelector('.nav-link.active').dataset.avatarType;
+                const name = avatarName.value || 'Your Avatar';
+                
+                // Show preview modal
+                const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+                document.getElementById('previewImage').src = `/static/images/avatars/${avatarType}/${character}.png`;
+                document.getElementById('previewImage').onerror = function() {
+                    this.src = `https://via.placeholder.com/200x200?text=${character}`;
+                };
+                document.getElementById('previewName').textContent = name;
+                document.getElementById('previewMessage').textContent = `Hi there! I'm ${name}, your learning buddy!`;
+                
+                previewModal.show();
+                
+                // Use text-to-speech to speak the greeting
+                setTimeout(() => {
+                    speakText(`Hi there! I'm ${name}, your learning buddy!`);
+                }, 500);
+            });
+        });
+        
+        // Check form validity when name changes
+        avatarName.addEventListener('input', checkFormValidity);
+        
+        // Function to check if the form is valid
+        function checkFormValidity() {
+            const nameValid = avatarName.value.trim() !== '';
+            const characterValid = characterInput.value !== '';
+            
+            if (nameValid && characterValid) {
+                createAvatarBtn.disabled = false;
+            } else {
+                createAvatarBtn.disabled = true;
+            }
+        }
+        
+        // Set initial values
+        voiceTypeInput.value = 'friendly';
+        document.querySelector('.voice-option[data-voice-type="friendly"]').classList.add('selected');
+    });
+</script>
+{% endblock %}
